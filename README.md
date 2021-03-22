@@ -1,2 +1,0 @@
-# DockFyp
-Android Fyp DockTalk
