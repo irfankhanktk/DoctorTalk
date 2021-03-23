@@ -23,12 +23,12 @@ const LogIn = ({navigation}) => {
     const { token, socket } = state;
     // const [viaLink, setViaLink] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
-    const setData = async (role) => {
-
-        await AsyncStorage.setItem(s.user, JSON.stringify({ name: name, contact: contact, role: role }));
+    const setData = async (role,data) => {
+        console.log('data    :',data);
+        await AsyncStorage.setItem(s.user, JSON.stringify(data));
         dispatch({
             type: actions.SET_TOKEN,
-            payload: { name: name, contact: contact, role: role },
+            payload:data,
         });
         //socket.emit('auth',{name:name,contact:contact});
     }
@@ -73,20 +73,20 @@ const LogIn = ({navigation}) => {
         else {
             setIsloading(true);
             const res = await getData(`${ApiUrls.auth.getUserIfExist}?uphone=${contact}`);
-            console.log('res', res);
+            console.log('res:    ', res);
             // console.log('status ',res.status);
-            if (res && res.data) {
+            if (res && res.data!=='null') {
                 console.log('res', res);
                 if (res.data.UType === 'Admin') {
-                    setData('Admin');
+                    setData('Admin',res.data);
                 } else if (res.data.UType === 'Patient') {
-                    setData('Patient');
+                    setData('Patient',res.data);
                 }
                 else {
-                    setData('Doctor');
+                    setData('Doctor',res.data);
                 }
             }
-            else if (res && res.data === 'Not Found') {
+            else if (res && res.data === 'null') {
                 alert('Not found');
             }
             else {
@@ -95,7 +95,7 @@ const LogIn = ({navigation}) => {
             }
 
             setIsloading(false);
-            navigation.navigate('DrMainTabNavigator');
+            // navigation.navigate('DrMainTabNavigator');
         }
     }
 

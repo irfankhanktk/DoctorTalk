@@ -11,7 +11,7 @@ const DoctorScreen = ({ navigation }) => {
     const [state, dispatch] = useStateValue();
     const {allDoctors, token } = state;
     // const [allPatients,setAllPatients]=useState([]);
-    console.log('dddd',allDoctors);
+    // console.log('dddd',allDoctors);
     return (
         <View>
             <FlatList

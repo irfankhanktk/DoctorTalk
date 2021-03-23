@@ -11,7 +11,7 @@ const ChatScreen = ({ navigation }) => {
     const [state, dispatch] = useStateValue();
     const { allFriends, token } = state;
     // const [allPatients,setAllPatients]=useState([]);
-   console.log('my fr: ',allFriends);
+//    console.log('my fr: ',allFriends);
     return (
         <View>
             <FlatList

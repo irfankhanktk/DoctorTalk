@@ -19,7 +19,6 @@ export const getData = async (relativeUrl) => {
       .then((res) => res)
       .catch((error) => {
         console.log(error)});
-      console.log('response in api call ',response);
     return response;
   } catch (err) {
     return { status: null };
