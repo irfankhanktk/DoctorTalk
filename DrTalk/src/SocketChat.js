@@ -5,7 +5,7 @@ import { Image, Text, TextInput, View } from 'react-native';
 // import moment from 'moment'
 import { useStateValue } from './Store/StateProvider';
 import { actions } from './Store/Reducer';
-const image = require('C:/Users/Irfan/Desktop/ReactNative/DrPatient/src/images/logo.jpg');
+const image = require('C:/Users/Irfan/Desktop/ReactNative/DoctorTalk/DrTalk/src/images/logo.jpg');
 // import socketClient from "socket.io-client";
 //const SERVER = "http://192.168.0.126:8080";
 const SocketChat = ({navigation,route}) => {

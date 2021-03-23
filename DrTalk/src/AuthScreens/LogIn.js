@@ -10,7 +10,7 @@ import { actions } from '../Store/Reducer';
 import { CustomActivityIndicator } from '../CustomActivityIndicator';
 import { ApiUrls } from '../API/ApiUrl';
 import { getData, postData } from '../API/ApiCalls'
-const image = require('E:/React_Native/DrTalk/src/images/logo.jpg');
+const image = require('E:/React_Native/DoctorTalk/DrTalk/src/images/logo.jpg');
 // E:\React_Native\DrTalk\src\images\logo.jpg
 
 const LogIn = ({navigation}) => {

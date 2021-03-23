@@ -1,6 +1,6 @@
 export const ApiUrls = {
   //  baseUrl: 'https://tms.bepms.com', // local url
-  baseUrl: 'http://192.168.0.111/TestApi/api/std/', // local url
+  baseUrl: 'http://192.168.1.108/TestApi/api/std/', // local url
 
   auth: {
     // refreshToken: '',
@@ -18,10 +18,16 @@ export const ApiUrls = {
   },
 patient:{
   _getAllPatient:'GetAllPatients',
-  invitation:{
+  _invitation:{
     _invitePatient:'GetPateintInvited',
     _addPatient:'PostAddPateint',
   }
 },
+user:{
+  _getMyFriends:'GetMyFriends',
+  _getUnfriendPatients:'GetUnfriendPatients',
+  _getUnfriendDoctors:'GetUnfriendDoctors',
+  _getMyFriendsFrequests:'GetMyFriendsFrequests',
+}
 
 }

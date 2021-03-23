@@ -9,7 +9,7 @@ import { actions } from './Store/Reducer';
 // import { TouchableOpacity } from 'react-native-gesture-handler';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import moment from 'moment'
-const image = require('C:/Users/Irfan/Desktop/ReactNative/DrPatient/src/images/logo.jpg');
+const image = require('C:/Users/Irfan/Desktop/ReactNative/DoctorTalk/DrTalk/src/images/logo.jpg');
 const { height, width } = Dimensions.get('window');
 
 const Chat = ({navigation,route}) => {

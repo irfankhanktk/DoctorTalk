@@ -8,7 +8,7 @@ import { ApiUrls } from '../API/ApiUrl';
 import { CustomActivityIndicator } from '../CustomActivityIndicator';
 import {useStateValue} from '../Store/StateProvider';
 // import {createDrawerNavigator} from '@react-navigation/drawer';
-const image = require('C:/Users/Irfan/Desktop/ReactNative/DrPatient/src/images/logo.jpg');
+const image = require('C:/Users/Irfan/Desktop/ReactNative/DoctorTalk/DrTalk/src/images/logo.jpg');
 
 const Admin = ({ navigation }) => {
     const [state, dispatch] = useStateValue();
