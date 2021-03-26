@@ -21,7 +21,7 @@ export const getData = async (relativeUrl) => {
         console.log(error)});
     return response;
   } catch (err) {
-    return { status: null };
+    return err;
   }
 };
 

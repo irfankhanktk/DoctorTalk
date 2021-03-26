@@ -7,6 +7,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Sessions as s } from '../AuthScreens/Sessions';
 import { useStateValue } from '../Store/StateProvider';
 import { actions } from '../Store/Reducer';
+import { CommonActions } from '@react-navigation/native';
 
 export function CustomDrawerContent(props) {
     const [state, dispatch] = useStateValue();
@@ -18,6 +19,12 @@ export function CustomDrawerContent(props) {
       type: actions.SET_TOKEN,
       payload: null
     });
+    props.navigation.dispatch(
+      CommonActions.reset({
+        index: 1,
+        routes: [{ name: 'Login' }],
+      })
+    );
     // console.log('state rem', state);
   };
     return (

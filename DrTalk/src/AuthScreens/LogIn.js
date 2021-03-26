@@ -13,43 +13,50 @@ import { getData, postData } from '../API/ApiCalls'
 const image = require('E:/React_Native/DoctorTalk/DrTalk/src/images/logo.jpg');
 // E:\React_Native\DrTalk\src\images\logo.jpg
 
-const LogIn = ({navigation}) => {
+const LogIn = ({ navigation }) => {
     const [state, dispatch] = useStateValue();
     const [isSignUp, setIsSignUp] = useState(false);
     const [name, setName] = useState('');
     const [contact, setContact] = useState('');
     const [isloading, setIsloading] = useState(false);
     const [code, setCode] = useState('');
-    const { token, socket } = state;
-    // const [viaLink, setViaLink] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
-    const setData = async (role,data) => {
-        console.log('data    :',data);
-        await AsyncStorage.setItem(s.user, JSON.stringify(data));
+    const setData = async (data) => {
+        // console.log('data    :', data);
+        dispatch({
+            type: actions.SET_USER,
+            payload: data,
+        });
         dispatch({
             type: actions.SET_TOKEN,
-            payload:data,
+            payload: data,
         });
+        await AsyncStorage.setItem(s.user, JSON.stringify(data));
+
         //socket.emit('auth',{name:name,contact:contact});
     }
     const onSignUp = async () => {
 
         if (contact === '') {
             alert('fill the required field');
-            console.log('code :', code);
+            // console.log('code :', code);
             return;
         }
         else {
-
+            setIsloading(true);
             if (code === '') {
-                setIsloading(true);
+               
                 const res = await postData(`${ApiUrls.doctor._addDoctor}`, { DName: name, DPhone: contact, isApproved: false, isReject: false });
-                console.log('post res ', res);
-                if (res.status === 200) {
-                    alert('Request Sent Wait of Approval');
+                // console.log('post res ', res);
+                if (res && res.data !== 'null') {
+                    if (res.data.UType == 'Doctor') {
+                        navigation.navigate('Doctor');
+                    } else {
+                        navigation.navigate('Patient');
+                    }
                 }
                 else {
-                    setIsloading(false);
+                   
                     alert('something went wrong');
                 }
 
@@ -60,7 +67,7 @@ const LogIn = ({navigation}) => {
                     alert('you may sign in now');
                 }
             }
-
+            setIsloading(false);
         }
     };
     const onsignIn = async () => {
@@ -73,29 +80,23 @@ const LogIn = ({navigation}) => {
         else {
             setIsloading(true);
             const res = await getData(`${ApiUrls.auth.getUserIfExist}?uphone=${contact}`);
-            console.log('res:    ', res);
-            // console.log('status ',res.status);
-            if (res && res.data!=='null') {
-                console.log('res', res);
-                if (res.data.UType === 'Admin') {
-                    setData('Admin',res.data);
-                } else if (res.data.UType === 'Patient') {
-                    setData('Patient',res.data);
-                }
-                else {
-                    setData('Doctor',res.data);
-                }
-            }
-            else if (res && res.data === 'null') {
-                alert('Not found');
-            }
-            else {
-                alert('Something went wrong');
+            // console.log('res in login press :', res);
 
-            }
+            if (res && res.data !== 'null') {
+                setData(res.data);
+                if (res.data.UType == 'Doctor') {
+                    navigation.navigate('Doctor');
+                } else {
+                    navigation.navigate('Patient');
+                }
 
+               
+                // navigation.navigate('DrMainTabNavigator');
+            }
+            else{
+                alert('invalid account');
+            }
             setIsloading(false);
-            // navigation.navigate('DrMainTabNavigator');
         }
     }
 

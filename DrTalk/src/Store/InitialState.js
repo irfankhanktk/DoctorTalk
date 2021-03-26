@@ -1,5 +1,5 @@
 export const initialState = {
-    user:{},
+    user:null,
     token:null,
     allPatients:[],
     allDoctors: [],

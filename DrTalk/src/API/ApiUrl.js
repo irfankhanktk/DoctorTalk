@@ -1,6 +1,6 @@
 export const ApiUrls = {
   //  baseUrl: 'https://tms.bepms.com', // local url
-  baseUrl: 'http://192.168.1.108/TestApi/api/std/', // local url
+  baseUrl: 'http://192.168.1.104/TestApi/api/std/', // local url
 
   auth: {
     // refreshToken: '',
