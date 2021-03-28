@@ -47,7 +47,7 @@ const LogIn = ({ navigation }) => {
             if (code === '') {
                
                 const res = await postData(`${ApiUrls.doctor._addDoctor}`, { DName: name, DPhone: contact, isApproved: false, isReject: false });
-                // console.log('post res ', res);
+                console.log('post res ', res);
                 if (res && res.data !== 'null') {
                     if (res.data.UType == 'Doctor') {
                         navigation.navigate('Doctor');

@@ -50,7 +50,7 @@ export const reducer = (state, action) => {
                 ...state,
                 msg: action.payload,
             };
-        case actions.SET_Socket:
+        case actions.SET_SOCKET:
             return {
                 ...state,
                 socket: action.payload,

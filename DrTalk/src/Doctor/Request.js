@@ -1,17 +1,45 @@
-import React from 'react';
+import React,{useEffect} from 'react';
 // import { useEffect } from 'react';
-import { View, Image, Text, TouchableOpacity ,StyleSheet} from 'react-native';
+import { View, Image, Text, TouchableOpacity ,StyleSheet,} from 'react-native';
 import { SwipeableFlatList } from 'react-native-swipeable-flat-list';
+import { getData } from '../API/ApiCalls';
 // import { getData } from '../API/ApiCalls';
 import { ApiUrls } from '../API/ApiUrl';
+import { actions } from '../Store/Reducer';
 import { useStateValue } from '../Store/StateProvider';
 const image = require('E:/React_Native/DoctorTalk/DrTalk/src/images/logo.jpg');
 // import Contacts from 'react-native-contacts'
 const RequestScreen = ({ navigation }) => {
     const [state, dispatch] = useStateValue();
-    const { allRequests, token } = state;
+    const { allRequests, token,user} = state;
     // const [allPatients,setAllPatients]=useState([]);
     // console.log('Request screen    ', allRequests);
+    const getRequestsData = async () => {
+        const res_Requests = await getData(`${ApiUrls.user._getMyFriendsFrequests}?UPhone=${user.UPhone}`);
+         console.log('res friends: ', res_Requests);
+        if (res_Requests && res_Requests.data !== 'null') {
+          dispatch({
+            type: actions.SET_All_REQUESTS,
+            payload: res_Requests.data
+          });
+    
+        }
+        else if (res_Requests && res_Requests.data === 'null') {
+          // alert('no friends');
+          dispatch({
+            type: actions.SET_All_REQUESTS,
+            payload: []
+          });
+        }
+      }
+      useEffect(() => {
+        if (user) {
+    
+          console.log('chal gya Doctor [user]', user);
+          getRequestsData();
+        
+        }
+      }, [user]);
 
 
     return (

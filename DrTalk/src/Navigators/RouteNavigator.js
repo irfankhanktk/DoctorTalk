@@ -40,6 +40,7 @@ function RouteNavigator({initialRoute}) {
   const { messages, token } = state;
   // const [text, setText] = useState('');
   const [socket, setSocket] = useState('');
+  
   // const [messages, setMessages] = useState('helo oo');
 
   const getData = async () => {
@@ -48,7 +49,7 @@ function RouteNavigator({initialRoute}) {
     console.log('initiala route',initialRoute);
     if (res) {
       let userData = JSON.parse(res);
-      const ioClient = socketClient('http://192.168.1.104:3000');
+      const ioClient = socketClient('http://192.168.1.109:3000');
       setSocket(ioClient);
 
   console.log('getdata user ',userData);
@@ -72,9 +73,11 @@ function RouteNavigator({initialRoute}) {
   return (
     <NavigationContainer>
       <Drawer.Navigator screenOptions={{gestureEnabled:false}} initialRouteName={initialRoute} drawerContent={(props) => <CustomDrawerContent {...props}/>}>
-        <Drawer.Screen name="Login" component={LogIn} />
-        <Drawer.Screen name="Doctor" component={DrMainDrawerNavigator} />
+        {console.log('log in routenavi ',initialRoute)}
         <Drawer.Screen name="Patient" component={PatientMainDrawerNavigator} />
+        <Drawer.Screen name="Login" component={LogIn} />
+        <Drawer.Screen name='Doctor' component={DrMainDrawerNavigator} />
+        
       </Drawer.Navigator>
     </NavigationContainer>
   );
@@ -119,8 +122,8 @@ const DrMainTabNavigator = () => {
 };
 const PatientMainDrawerNavigator = () => {
   return (
-    <Drawer.Navigator>
-      <Drawer.Screen name="Home" component={PatientMainTabNavigator} />
+    <Drawer.Navigator drawerContent={(props) => <CustomDrawerContent {...props}/>}>
+      <Drawer.Screen name="Home" component={PatientMainTabNavigator}  />
     </Drawer.Navigator>
   );
 };
