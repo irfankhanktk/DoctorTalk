@@ -1,9 +1,10 @@
 import React, { useEffect } from 'react';
 import { useState } from 'react';
 import base64 from 'react-native-base64'
-import { Text, View, StyleSheet, TouchableOpacity, Platform, PermissionsAndroid, FlatList } from 'react-native';
+import { Text, View, StyleSheet, TouchableOpacity, Platform, PermissionsAndroid, FlatList, MaskedViewComponent } from 'react-native';
 // import PermissionsAndroid from 'react-native-permissions';
 import RNFS from "react-native-fs";
+import * as Progress from 'react-native-progress';
 import AudioRecorderPlayer, {
   AVEncoderAudioQualityIOSType,
   AVEncodingOption,
@@ -12,12 +13,17 @@ import AudioRecorderPlayer, {
   AudioSourceAndroidType,
 } from 'react-native-audio-recorder-player';
 import FontAwesome from 'react-native-vector-icons/FontAwesome'
+import { useStateValue } from './Store/StateProvider';
+import { actions } from './Store/Reducer';
+import { postData, sendMessageToServer } from './API/ApiCalls';
+import { ApiUrls } from './API/ApiUrl';
 
 const audioRecorderPlayer = new AudioRecorderPlayer();
-const Calls = () => {
+const Recorder = ({ route }) => {
   const [recordSecs, setRecordSecs] = useState(0);
   const [recordTime, setRecordTime] = useState(0);
   const [currentDurationSec, setCurrentDurationSec] = useState(0);
+  const [progressValue, setProgressValue] = useState(0);
 
   const [duration, setDuration] = useState(0);
   const [playTime, setPlayTime] = useState(0);
@@ -26,45 +32,46 @@ const Calls = () => {
 
   const [startIcon, setStartIcon] = useState(false);
   const [voiceList, setVoiceList] = useState([]);
+  const [base64Audio, setBase64Audio] = useState(null);
+  const [state, dispatch] = useStateValue();
+  const { user, messages,socket } = state;
   audioRecorderPlayer.setSubscriptionDuration(0.09); // optional. Default is 0.1
-  async function getUriToBase64(uri) {
+
+
+
+  async function sendAudioMessage(uri) {
     // get a list of files and directories in the main bundle
-    RNFS.readDir('file:///sdcard') // On Android, use "RNFS.DocumentDirectoryPath" (MainBundlePath is not defined)
-      .then((result) => {
-        // result.forEach(ele => {
-        //   if (ele.name.slice(-3) === 'mp4') {
-        //     console.log('GOT RESULT:', ele.name);
-        //     // setVoiceList();
-        //   }
-        // });
-        const temp = result.filter(item => {
-          return item.name.slice(-3) === 'mp4';
-        });
-        setVoiceList(temp);
-        console.log(temp);
+    const base64String = await RNFS.readFile(uri, "base64");
+    
+    const resp = await postData(ApiUrls.message._PostAudioKey, {Audio1:base64String});
+    if (resp.data !== 'null') {
+      console.log('response : ', resp.data);
+      console.log('time: ',Date.now());
+       const msgInfo = {
+        Message_to: route.params.Friend_phone,
+        Message_from: user.UPhone,
+        Message_type: 'audio',
+        Message_content:resp.data,
+        Message_time:Date.now(),
+        isSeen:false,
 
+      };
+      sendMessageToServer(socket,msgInfo);
+      console.log('msg info with key for audio: ',msgInfo);
+      msgInfo.Message_content=base64String;
+      messages.push(msgInfo);
+      dispatch({
+        type:actions.SET_MESSAGES,
+        payload:messages
+      })
+     
 
-        // stat the first file
-        return Promise.all([RNFS.stat(result[0].path), result[0].path]);
-      })
-      .then((statResult) => {
-        if (statResult[0].isFile()) {
-          // if we have a file, read it
-          return RNFS.readFile(statResult[1], 'utf8');
-        }
-
-        return 'no file';
-      })
-      .then((contents) => {
-        // log the file contents
-        console.log(contents);
-      })
-      .catch((err) => {
-        console.log(err.message, err.code);
-      });
+    }
   }
+
+
   useEffect(() => {
-    getUriToBase64('file:///sdcard/hello.mp4');
+    // getUriToBase64('file:///sdcard/0.4983614824020304.mp3');
   }, [])
   const onStartRecord = async () => {
     await onSetStartIcon();
@@ -112,7 +119,7 @@ const Calls = () => {
     }
     const path = Platform.select({
       ios: 'hello.m4a',
-      android: `sdcard/${Math.random()}.mp4`, // should give extra dir name in android. Won't grant permission to the first level of dir.
+      android: `sdcard/${Math.random()}.mp3`, // should give extra dir name in android. Won't grant permission to the first level of dir.
     });
     const audioSet = {
       AudioEncoderAndroid: AudioEncoderAndroidType.AAC,
@@ -124,33 +131,48 @@ const Calls = () => {
     //   const result = await audioRecorderPlayer.startRecord(path);
     const result = await audioRecorderPlayer.startRecorder(path, audioSet);
     audioRecorderPlayer.addRecordBackListener((e) => {
-      console.log('listning');
-      console.log(e)
+
       setRecordSecs(`${e.current_position}`);
-      setRecordTime(audioRecorderPlayer.mmss(Math.floor(e.current_position)));
+      setRecordTime(audioRecorderPlayer.mmssss(Math.floor(e.current_position)));
       return;
     });
-    console.log("start result =====: ", base64.encode('hi i am khan'));
   };
+
   const onSetStartIcon = async () => {
     setStartIcon(!startIcon);
   }
+
   const onStopRecord = async () => {
 
     await onSetStartIcon();
-    //    alert('hwa');
     const result = await audioRecorderPlayer.stopRecorder();
     audioRecorderPlayer.removeRecordBackListener();
     setRecordSecs(0);
     console.log('onStop record result : ', result);
-    // console.log('on stop base64 ', getUriToBase64(result));
+    if(result&&result.toString().slice(-3)==='mp3'){
+      console.log('ye to thk ha');
+      sendAudioMessage(result);
+    }
+   
+
   };
 
-  const onStartPlay = async (file) => {
+  const onStartPlay = async (item) => {
+    // handlePlayPause(item);
+
+    if (base64Audio) {
+      console.log('base64 here :', base64Audio.slice(0, 10));
+    }
+    if (!base64Audio) {
+
+      return
+    }
+    // setIsPlay(!isPlay);
     console.log('onStartPlay');
     const path = Platform.select({
       ios: 'hello.m4a',
-      android: `sdcard/${file}`, // should give extra dir name in android. Won't grant permission to the first level of dir.
+      // android: `sdcard/${item.name}`, // should give extra dir name in android. Won't grant permission to the first level of dir.
+      android: `data:audio/mp3;base64,${base64Audio}`, // should give extra dir name in android. Won't grant permission to the first level of dir.
     });
 
     const msg = await audioRecorderPlayer.startPlayer(path);
@@ -158,33 +180,23 @@ const Calls = () => {
     console.log(msg);
     audioRecorderPlayer.addPlayBackListener((e) => {
       if (e.current_position === e.duration) {
+        setIsPlay(true);
         console.log('finished', msg);
-
         const res = audioRecorderPlayer.stopPlayer();
         console.log('onStopPlay response :   ', res);
       }
-      setCurrentPositionSec(e.current_position);
-      setCurrentDurationSec(e.duration);
-      setPlayTime(audioRecorderPlayer.mmssss(Math.floor(e.current_position)));
-      setDuration(audioRecorderPlayer.mmssss(Math.floor(e.duration)));
+      console.log('current_position:   ', e.current_position);
+      console.log('duration:   ', e.duration);
+      // setCurrentPositionSec(e.current_position);
+      // setCurrentDurationSec(e.duration);
+      // setPlayTime(audioRecorderPlayer.mmssss(Math.floor(e.current_position)));
+      // setDuration(audioRecorderPlayer.mmssss(Math.floor(e.duration)));
+      //  console.log('prog', audioRecorderPlayer.mmssss(Math.floor(e.current_position)));
+      // setProgressValue(e.current_position / e.duration);
 
       return;
     });
   };
-
-  const onPausePlay = async () => {
-    const res = await audioRecorderPlayer.pausePlayer();
-    console.log('res onPausePlay', res);
-  };
-
-  const onStopPlay = async () => {
-    const res = audioRecorderPlayer.stopPlayer();
-    console.log('onStopPlay response :   ', res);
-    audioRecorderPlayer.removePlayBackListener();
-  };
-
-
-
 
 
 
@@ -193,42 +205,15 @@ const Calls = () => {
 
   return (
     <View style={styles.container}>
-      <FlatList
-        data={voiceList}
-        renderItem={({ item }) => (
-          <View>
-            <TouchableOpacity onPress={() => onStartPlay(item.name)} >
-              <Text>{item.name}</Text>
-            </TouchableOpacity>
-          </View>
-        )}
-        keyExtractor={(item, index) => index + ''}
-      />
-      {startIcon ? <TouchableOpacity onPress={() => onStartRecord()}>
+      {startIcon ? <TouchableOpacity onPress={() => onStopRecord()}>
         <FontAwesome name={'microphone'} size={25} color={'blue'} />
       </TouchableOpacity>
-        : <TouchableOpacity onPress={() => onStopRecord()}>
-          <FontAwesome name={'microphone'} size={25} color={'gray'} />
+        : <TouchableOpacity onPress={() => onStartRecord()}>
+          <FontAwesome name={'microphone'} size={25} color={'black'} />
         </TouchableOpacity>
       }
 
-      <TouchableOpacity style={{ backgroundColor: 'black', padding: 10, margin: 10, alignItems: 'center' }} onPress={() => onStartRecord()}>
-        <Text style={{ color: 'white' }}>start Recording</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={{ backgroundColor: 'black', padding: 10, margin: 10, alignItems: 'center' }} onPress={() => onStopRecord()}>
-        <Text style={{ color: 'white' }}>stop Recording</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={{ backgroundColor: 'black', padding: 10, margin: 10, alignItems: 'center' }} onPress={() => onStartPlay()}>
-        <Text style={{ color: 'white', }}>play</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={{ backgroundColor: 'black', padding: 10, margin: 10, alignItems: 'center' }} onPress={() => onStopPlay()}>
-        <Text style={{ color: 'white', }}>Stop play</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={{ backgroundColor: 'black', padding: 10, margin: 10, alignItems: 'center' }} onPress={() => onPausePlay()}>
-        <Text style={{ color: 'white', }}>Pause play</Text>
-      </TouchableOpacity>
-      <Text style={{ margin: 30 }}>Time{recordTime}</Text>
-      <Text>Duration: {duration}</Text>
+
     </View>
   );
 };
@@ -236,10 +221,11 @@ const Calls = () => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    width: 30,
     justifyContent: 'center',
-    alignItems: 'center'
-
+    alignItems: 'center',
   },
 });
-export default Calls;
+export default Recorder;
+
+

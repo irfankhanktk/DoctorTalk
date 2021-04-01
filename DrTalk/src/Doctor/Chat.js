@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import { Text, View, StyleSheet, Dimensions, TextInput, Image, TouchableOpacity, FlatList } from 'react-native';
 import Modal from 'react-native-modal'
 import Entypo from 'react-native-vector-icons/Entypo'
-import MaterialIcon from 'react-native-vector-icons/MaterialIcons'
+import * as Progress from 'react-native-progress';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import { useStateValue } from '../Store/StateProvider';
 import { actions } from '../Store/Reducer';
 // import { TouchableOpacity } from 'react-native-gesture-handler';
-import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
+import MessageBox from '../MessageBox';
+import PlayAudio from '../PlayAudio';
 // import moment from 'moment'
 // const image = require('C:/Users/Irfan/Desktop/ReactNative/DoctorTalk/DrTalk/src/images/logo.jpg');
 const { height, width } = Dimensions.get('window');
@@ -21,193 +23,95 @@ const Chat = ({ navigation, route }) => {
     const [modalVisible, setModalVisible] = useState(false);
     const [text, setText] = useState('');
     const [state, dispatch] = useStateValue();
-    const { token, messages, socket, user } = state;
+    const { token, messages, socket, user, audio } = state;
+    const [isDownload, setIsDownload] = useState(false);
+
+    const getFile = (contentKey, contentType) => {
+        if (contentType === '')
+            setIsDownload(true);
+    }
     // const {contact,name,}=route.params.token;
 
-    const selectCamera = () => {
-        setModalVisible(false);
-        launchCamera({
-            includeBase64: true
-        }, (response) => {
-            setUri(response.uri);
-            setGUri(response.base64);
-            // console.log('base64 : ',response.base64)
 
 
-            const msgInfo = {
-                toPhone: route.params.Friend_phone,
-                toName: route.params.Friend_name,
-                fromPhone: user.UPhone,
-                fromName: user.UName,
-                msg: response.base64,
-                msgType: 'image',
-            };
-            messages.push(msgInfo);
-            dispatch({
-                type: actions.SET_MESSAGES,
-                payload: messages
-            });
 
-        });
-    };
-    const selectGallery = () => {
-        setModalVisible(false);
-        launchImageLibrary({
-            includeBase64: true
-        }, (response) => {
-            console.log('resp', response);
-            setGUri(response.base64);
-            console.log('uri :', response.uri);
-            // console.log('base64 : ',response.base64)
-
-
-            const msgInfo = {
-                toPhone: route.params.Friend_phone,
-                toName: route.params.Friend_name,
-                fromPhone: user.UPhone,
-                fromName: user.UName,
-                msg: response.base64,
-                msgType: 'image',
-            };
-            messages.push(msgInfo);
-            dispatch({
-                type: actions.SET_MESSAGES,
-                payload: messages
-            });
-        });
-
-    }
-
-
-    const updateSize = () => {
-        // console.log('msg: ', msg.length);
-        // console.log('msg: ', msg);
-        if (msg.length === 0) {
-            setTxtInputHeight(0.05);
-        }
-        else
-            if (txtInputHeight <= 0.20) {
-                setTxtInputHeight(txtInputHeight + 0.025);
-            }
-
-    }
-
-    const sendMessage = () => {
-        // console.log('socket to send msg : ',socket);
-        if (socket === {}) {
-            alert('no internet connection');
-            return;
-        }
-        const msgInfo = {
-            toPhone: route.params.Friend_phone,
-            toName: route.params.Friend_name,
-            fromPhone: user.UPhone,
-            fromName: user.UName,
-            msg: msg,
-            msgType: 'text',
-        };
-        messages.push(msgInfo);
-        dispatch({
-            type: actions.SET_MESSAGES,
-            payload: messages
-        });
-        socket.emit('chat message', msgInfo);
-
-        setMsg('');
-    }
     return (
         <View style={styles.container}>
             <View style={{ width: width, height: height * 0.25, justifyContent: 'center', alignItems: 'center' }}>
-                <Image source={{ uri: `data:image/jpeg;base64,${gUri}` }} style={{ width: 70, height: 70, borderRadius: 50 }} />
+                <Image source={image} style={styles.imgStyle} />
                 {/* <Image source={{uri: `data:image/png;base64,${gUri}`}} style={{ width: 70, height: 70, borderRadius: 50 }} /> */}
                 <Text>{route.params.Friend_name}</Text>
                 <Text>{route.params.Friend_phone}</Text>
                 <Text>{route.params.Friend_status}</Text>
             </View>
-            {console.log('msgs; ',messages.length)}
             <FlatList
                 data={messages}
                 renderItem={({ item }) => (
-                    <View>{console.log('item : ', item)}{(item.fromPhone === route.params.Friend_phone) ?
-                        <View style={{ marginVertical: 5, left: 10 }}>
-                            {item.msgType === 'text' ?
+                    <View>{console.log('item : ', item)}{(item.Message_from === route.params.Friend_phone) ?
+                        <View style={{ marginVertical: 5, alignItems: 'flex-start', }}>
+                            {item.Message_type === 'text' ?
                                 <View style={{ backgroundColor: 'skyblue', borderRadius: 5, width: '30%' }}>
-                                    <Text style={{ fontSize: 20 }}>{item.msg}</Text>
+                                    <Text style={{ fontSize: 20 }}>{item.Message_content}</Text>
                                     <Text style={{ alignSelf: 'flex-end' }}>5:40</Text>
                                 </View>
-                                :
-                                <View style={{ backgroundColor: 'skyblue', borderRadius: 5, width: '30%' }}>
-                                    <Text style={{ alignSelf: 'flex-end' }}>image part</Text>
-                                    <Image source={{ uri: `data:image/jpeg;base64,${item.msg}`}} style={{ width: 70, height: 70, }} />
-                                    <Text style={{ alignSelf: 'flex-end' }}>5:46</Text>
-                                </View>
+                                : item.Message_type === 'image' ?
+                                    <View style={{ borderRadius: 5, width: '30%' }}>
+                                        {isDownload ?
+                                            <Image source={{ uri: `data:image/jpeg;base64,${item.Message_content}` }} style={{ width: 70, height: 70, }} />
+                                            :
+                                            <TouchableOpacity onPress={() => getFile(item.Message_content, item.Message_type)}>
+                                                <MaterialCommunityIcons name={'download'} color='black' size={20} />
+                                            </TouchableOpacity>
+                                        }
+                                    </View>
+                                    :
+                                    <View style={{ borderRadius: 5, }}>
+                                        {isDownload ?
+                                            <PlayAudio item={item.Message_content} />
+                                            :
+                                            <View style={{flexDirection:'row',width:150,justifyContent:'space-around'}}>
+                                                <TouchableOpacity onPress={() => getFile(item.Message_content, item.Message_type)}>
+                                                    <MaterialCommunityIcons name={'download'} color='black' size={20} />
+                                                </TouchableOpacity>
+                                                <View style={{justifyContent:'center'}}>
+                                                <Progress.Bar progress={0} width={100} />
+                                                </View>
+                                             
+                                            </View>
+                                        }
+                                        <Text style={{ alignSelf: 'flex-start' }}>5:46</Text>
+                                    </View>
                             }
                         </View>
-                        : item.toPhone === route.params.Friend_phone &&
-                        <View style={{ marginVertical: 5, right: 10, alignItems: 'flex-end', }}>
-                           {item.msgType === 'text' ?
+                        : item.Message_to === route.params.Friend_phone &&
+                        <View style={{ marginVertical: 5, right: 0, alignItems: 'flex-end', }}>
+                            {item.Message_type === 'text' ?
                                 <View style={{ backgroundColor: 'skyblue', borderRadius: 5, width: '30%' }}>
-                                    <Text style={{ fontSize: 20 }}>{item.msg}</Text>
+                                    <Text style={{ fontSize: 20 }}>{item.Message_content}</Text>
                                     <Text style={{ alignSelf: 'flex-end' }}>5:40</Text>
                                 </View>
-                                :
-                                <View style={{borderRadius: 5, width: '30%' }}>
-                                    
-                                    <Image source={{ uri: `data:image/jpeg;base64,${item.msg}` }} style={{ width: 70, height: 70, }} />
-                                    <Text style={{ alignSelf: 'flex-end' }}>5:46</Text>
-                                </View>
+                                : item.Message_type === 'image' ?
+                                    <View style={{ borderRadius: 5, width: '30%' }}>
+                                        <Image source={{ uri: `data:image/jpeg;base64,${item.Message_content}` }} style={{ width: 70, height: 70, }} />
+                                        <Text style={{ alignSelf: 'flex-end' }}>5:46</Text>
+                                    </View>
+                                    :
+                                    <View style={{ borderRadius: 5 }}>
+                                        {console.log('hello audio:::: ', item.Message_content)}
+                                        <PlayAudio item={item.Message_content} />
+                                        <Text style={{ alignSelf: 'flex-end' }}>5:46</Text>
+                                    </View>
                             }
-                        </View>}
+                        </View>
+                    }
                     </View>
                 )}
                 keyExtractor={(item, index) => index + ''}
             />
             {/* <Image source={{ uri: uri }} style={{ height: 100, width: 100 }} />
             <Image source={{ uri: gUri }} style={{ height: 100, width: 100 }} /> */}
-            <View style={styles.centeredView}>
-                <Modal
-                    onBackdropPress={() => setModalVisible(!modalVisible)}
-                    animationType="slide"
-                    transparent={true}
-                    visible={modalVisible}
-                    onRequestClose={() => {
-                        Alert.alert("Modal has been closed.");
-                        setModalVisible(!modalVisible);
-                    }}
-                >
-                    <View style={styles.centeredView}>
-                        <View style={styles.modalView}>
-                            <TouchableOpacity
-                                style={[styles.button, styles.buttonClose]}
-                                onPress={() => selectCamera()}
-                            >
-                                <Text style={styles.textStyle}>Camera</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                style={[styles.button, styles.buttonClose]}
-                                onPress={() => selectGallery()}
-                            >
-                                <Text style={styles.textStyle}>Gallery</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                </Modal>
-            </View>
             <View style={styles.footer}>
-                <View style={{ borderTopEndRadius: 10, borderTopEndRadius: 10, backgroundColor: 'white', width: '100%', flexDirection: 'row', height: height * txtInputHeight, alignItems: 'flex-end', justifyContent: 'center' }}>
-                    <TextInput onChangeText={text => setMsg(text)} value={msg} style={styles.InputTxt} width={'70%'} height={height * txtInputHeight} placeholder='type here' onContentSizeChange={() => updateSize()} numberOfLines={5} multiline />
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', width: '30%' }}>
-                        <TouchableOpacity onPress={() => setModalVisible(true)}>
-                            <Entypo name='camera' size={25} />
-                        </TouchableOpacity>
-                        <TouchableOpacity style={{}} onPress={() => { }}>
-                            <MaterialIcon name='keyboard-voice' size={25} />
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={() => sendMessage()}>
-                            <MaterialIcon name='send' size={30} color='blue' />
-                        </TouchableOpacity>
-                    </View>
-                </View>
+                <MessageBox route={route} />
             </View>
         </View>
     );
@@ -219,6 +123,11 @@ const styles = StyleSheet.create({
         flex: 1,
         height: height,
         width: width,
+    },
+    imgStyle: {
+        width: 70,
+        height: 70,
+        borderRadius: 50
     },
     InputTxt: {
         borderTopEndRadius: 10,

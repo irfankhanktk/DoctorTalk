@@ -28,6 +28,7 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import Feather from "react-native-vector-icons/Feather";
 import Chat from '../Doctor/Chat';
 import { CustomDrawerContent } from './DrawerContent';
+import MessageBox from '../MessageBox';
 // import Chat from "../Chat";
 // // import {createDrawerNavigator} from "@react-navigation/drawer";
 // import SocketChat from "../SocketChat";
@@ -41,7 +42,7 @@ function RouteNavigator({initialRoute}) {
   // const [text, setText] = useState('');
   const [socket, setSocket] = useState('');
   
-  // const [messages, setMessages] = useState('helo oo');
+
 
   const getData = async () => {
     const res = await AsyncStorage.getItem(s.user);
@@ -49,7 +50,7 @@ function RouteNavigator({initialRoute}) {
     console.log('initiala route',initialRoute);
     if (res) {
       let userData = JSON.parse(res);
-      const ioClient = socketClient('http://192.168.1.109:3000');
+      const ioClient = socketClient('http://192.168.1.107:3000');
       setSocket(ioClient);
 
   console.log('getdata user ',userData);
@@ -74,8 +75,9 @@ function RouteNavigator({initialRoute}) {
     <NavigationContainer>
       <Drawer.Navigator screenOptions={{gestureEnabled:false}} initialRouteName={initialRoute} drawerContent={(props) => <CustomDrawerContent {...props}/>}>
         {console.log('log in routenavi ',initialRoute)}
-        <Drawer.Screen name="Patient" component={PatientMainDrawerNavigator} />
         <Drawer.Screen name="Login" component={LogIn} />
+        <Drawer.Screen name="Patient" component={PatientMainDrawerNavigator} />
+      
         <Drawer.Screen name='Doctor' component={DrMainDrawerNavigator} />
         
       </Drawer.Navigator>
@@ -123,6 +125,7 @@ const DrMainTabNavigator = () => {
 const PatientMainDrawerNavigator = () => {
   return (
     <Drawer.Navigator drawerContent={(props) => <CustomDrawerContent {...props}/>}>
+      <Drawer.Screen name="MessageBox" component={MessageBox}  />
       <Drawer.Screen name="Home" component={PatientMainTabNavigator}  />
     </Drawer.Navigator>
   );

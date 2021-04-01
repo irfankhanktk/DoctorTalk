@@ -8,7 +8,9 @@ import { reducer} from './src/Store/Reducer'
 import RouteNavigator from './src/Navigators/RouteNavigator';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Sessions } from './src/AuthScreens/Sessions';
-import Calls from './src/Call';
+import PlayAudio from './src/PlayAudio';
+import Recorder from './src/Recorder';
+// import Calls from './src/Call';
 
 // import LogIn from './src/AuthScreens/LogIn';
 const App = () => {
@@ -40,13 +42,12 @@ const App = () => {
     await getUserData()
   },[]);
 
-
   return (
-    // <StateProvider reducer={reducer} initialState={initialState}>
-    //   {console.log('initial route : in above rnavigation ',initialRoute)}
-    //   <RouteNavigator initialRoute={initialRoute}/>
-    // </StateProvider>
-    <Calls/>
+   
+    // <Recorder/>
+    <StateProvider reducer={reducer} initialState={initialState}>
+      <RouteNavigator initialRoute={initialRoute}/>
+    </StateProvider>
   );
 };
 export default App;

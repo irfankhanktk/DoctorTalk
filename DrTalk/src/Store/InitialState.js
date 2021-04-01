@@ -9,4 +9,5 @@ export const initialState = {
     messages:[],
     allFriends:[],
     allRequests:[],
+    audio:null,
 };

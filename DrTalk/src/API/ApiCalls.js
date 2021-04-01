@@ -25,6 +25,7 @@ export const getData = async (relativeUrl) => {
   }
 };
 
+
 export const postData = async (relativeUrl,data) => {
   const url = getUrl(relativeUrl);
   console.log('url :', url);
@@ -46,3 +47,7 @@ export const postData = async (relativeUrl,data) => {
     return { status: null };
   }
 };
+
+export const sendMessageToServer=async(socket,msgInfo)=>{
+  socket.emit('chat message', msgInfo);
+}

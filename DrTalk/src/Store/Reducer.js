@@ -3,13 +3,14 @@ export const actions = {
     SET_TOKEN: 'set_token',
     SET_All_PATIENTS: 'set_all_patients',
     SET_All_DOCTORS: 'set_all_doctors',
-    SET_All_REQUESTS:'set_all_requests',
-    SET_All_FRIENDS:'set_all_friends',
+    SET_All_REQUESTS: 'set_all_requests',
+    SET_All_FRIENDS: 'set_all_friends',
     SET_MSG: 'set_msg',
     SET_SOCKET: 'set_socket',
     SET_ClIENTS: 'set_clients',
     SET_MESSAGES: 'set_messages',
-  
+    SET_AUDIO: 'set_audio'
+
 };
 
 export const reducer = (state, action) => {
@@ -19,6 +20,11 @@ export const reducer = (state, action) => {
             return {
                 ...state,
                 user: action.payload,
+            };
+        case actions.SET_AUDIO:
+            return {
+                ...state,
+                audio: action.payload,
             };
         case actions.SET_All_PATIENTS:
             return {
@@ -35,11 +41,11 @@ export const reducer = (state, action) => {
                 ...state,
                 allDoctors: action.payload,
             };
-            case actions.SET_All_FRIENDS:
-                return {
-                    ...state,
-                    allFriends: action.payload,
-                };
+        case actions.SET_All_FRIENDS:
+            return {
+                ...state,
+                allFriends: action.payload,
+            };
         case actions.SET_TOKEN:
             return {
                 ...state,

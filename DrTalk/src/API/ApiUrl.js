@@ -1,12 +1,8 @@
 export const ApiUrls = {
-  //  baseUrl: 'https://tms.bepms.com', // local url
-  baseUrl: 'http://192.168.1.109/TestApi/api/std/', // local url
-
+  baseUrl: 'http://192.168.1.106/TestApi/api/std/',
   auth: {
     // refreshToken: '',
     getUserIfExist: 'GetUserIfExist',
-    // getPermissions: '/api/Members/GetPermissions',
-    // login: '/token', //LOCAL
   },
   doctor:{
     _getUnApprovedDoctors:'GetUnApprovedDoctor',
@@ -28,6 +24,10 @@ user:{
   _getUnfriendPatients:'GetUnfriendPatients',
   _getUnfriendDoctors:'GetUnfriendDoctors',
   _getMyFriendsFrequests:'GetMyFriendsFrequests',
+},
+message:{
+  _PostAudioKey:'PostAudioKey',
+  _PostImageKey:'PostImageKey',
 }
 
 }
