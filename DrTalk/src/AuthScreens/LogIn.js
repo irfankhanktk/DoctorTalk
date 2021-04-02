@@ -123,6 +123,7 @@ const LogIn = ({ navigation }) => {
                     <TouchableOpacity style={{ marginTop: 40, }} onPress={() => setIsSignUp(true)}>
                         <View style={{ borderBottomWidth: 1, backgroundColor: '1177bb' }}>
                             <Text style={{ color: 'blue' }}>Create New Account</Text>
+                        {/* jkdkflk */}
                         </View>
                     </TouchableOpacity>
                 </View>
