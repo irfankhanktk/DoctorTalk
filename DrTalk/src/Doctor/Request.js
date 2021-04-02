@@ -7,7 +7,7 @@ import { getData } from '../API/ApiCalls';
 import { ApiUrls } from '../API/ApiUrl';
 import { actions } from '../Store/Reducer';
 import { useStateValue } from '../Store/StateProvider';
-const image = require('E:/React_Native/DoctorTalk/DrTalk/src/images/logo.jpg');
+const image = require('../assets/images/logo.jpg');
 // import Contacts from 'react-native-contacts'
 const RequestScreen = ({ navigation }) => {
     const [state, dispatch] = useStateValue();
@@ -54,18 +54,28 @@ const RequestScreen = ({ navigation }) => {
                             <Image style={{ height: 50, width: 50, borderRadius: 50 }} source={image} />
                             <Text style={{ left: 20 }}>{item.UName}{item.UPhone}</Text>
                         </View>
-                        <View style={{ flexDirection: 'row', width: '40%', justifyContent: 'space-evenly' }}>
+                        {/* <View style={{ flexDirection: 'row', width: '40%', justifyContent: 'space-evenly' }}>
                             <TouchableOpacity style={styles.btnStyle}>
                                 <Text>Confirm</Text>
                             </TouchableOpacity>
                             <TouchableOpacity style={styles.btnStyle}>
                                 <Text>Reject</Text>
                             </TouchableOpacity>
-                        </View>
+                        </View> */}
 
                     </View>
                 )}
-
+                renderRight={({ item }) => (
+                 <View style={{height:60}}>
+                   <TouchableOpacity onPress={()=>{}}>
+                     <Text>Confirm</Text>
+                   </TouchableOpacity>
+                   <TouchableOpacity onPress={()=>{}}>
+                     <Text>Confirm</Text>
+                   </TouchableOpacity>
+                 </View>
+              )}
+  
                 ItemSeparatorComponent={() => (
                     <View style={{ height: 1, backgroundColor: 'lightgrey' }} />
                 )}

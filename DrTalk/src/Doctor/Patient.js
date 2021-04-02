@@ -3,17 +3,16 @@ import React,{useEffect} from 'react';
 import { View, Image, Text, TouchableOpacity, FlatList,} from 'react-native';
 import { getData } from '../API/ApiCalls';
 // import { SwipeableFlatList } from 'react-native-swipeable-flat-list';
-// import { getData } from '../API/ApiCalls';
 import { ApiUrls } from '../API/ApiUrl';
 import { actions } from '../Store/Reducer';
 import { useStateValue } from '../Store/StateProvider';
-const image = require('E:/React_Native/DoctorTalk/DrTalk/src/images/logo.jpg');
-// import Contacts from 'react-native-contacts'
+
+const image = require('../assets/images/logo.jpg');
+
 const PatientScreen = ({ navigation }) => {
     const [state, dispatch] = useStateValue();
     const {allPatients,user,} = state;
-    // const [allPatients,setAllPatients]=useState([]);
-    // console.log('dddd',allDoctors);
+
     const getPatientsData = async () => {
         const res_Patients = await getData(`${ApiUrls.user._getUnfriendPatients}?UPhone=${user.UPhone}`);
          console.log('res friends: ', res_Patients);
@@ -25,7 +24,7 @@ const PatientScreen = ({ navigation }) => {
     
         }
         else if (res_Patients && res_Patients.data === 'null') {
-          // alert('no friends');
+
           dispatch({
             type: actions.SET_All_PATIENTS,
             payload: []
@@ -35,7 +34,6 @@ const PatientScreen = ({ navigation }) => {
       useEffect(() => {
         if (user) {
     
-          console.log('chal gya Doctor [user]', user);
           getPatientsData();
         
         }

@@ -9,28 +9,49 @@ import { actions } from '../Store/Reducer';
 // import { TouchableOpacity } from 'react-native-gesture-handler';
 import MessageBox from '../MessageBox';
 import PlayAudio from '../PlayAudio';
+import { getData } from '../API/ApiCalls';
+import { ApiUrls } from '../API/ApiUrl';
 // import moment from 'moment'
 // const image = require('C:/Users/Irfan/Desktop/ReactNative/DoctorTalk/DrTalk/src/images/logo.jpg');
 const { height, width } = Dimensions.get('window');
-const image = require('E:/React_Native/DoctorTalk/DrTalk/src/images/logo.jpg');
+const image = require('../assets/images/logo.jpg');
 const Chat = ({ navigation, route }) => {
-    // console.log('route : ',route);
-    // console.log(route.params);
-    const [txtInputHeight, setTxtInputHeight] = useState(0.05);
-    const [msg, setMsg] = useState('');
-    const [uri, setUri] = useState('');
-    const [gUri, setGUri] = useState('');
-    const [modalVisible, setModalVisible] = useState(false);
-    const [text, setText] = useState('');
     const [state, dispatch] = useStateValue();
-    const { token, messages, socket, user, audio } = state;
-    const [isDownload, setIsDownload] = useState(false);
+    const {messages, user} = state;
 
-    const getFile = (contentKey, contentType) => {
-        if (contentType === '')
-            setIsDownload(true);
+
+    const downloadBase64 = async (index,item) => {
+      console.log('tmitmtmtm  :',item);
+        if (item.Message_type !== 'audio'&&item.Message_type !== 'image') {
+            alert('check type content');
+            return;
+        }
+     
+
+        if (item.Message_type === 'audio') {
+            const resp = await getData(`${ApiUrls.message._GetAudioString}?Audio_key=${item.Message_content}`);
+            if (resp && resp.data) {
+                item.Is_download = true;
+                item.Message_content=resp.data.Audio1;
+            }
+        }
+        else {
+            const resp = await getData(`${ApiUrls.message._GetImageString}?Image_key=${item.Message_content}`);
+            if (resp && resp.data) {
+                item.Is_download = true;
+                item.Message_content=resp.data.Image1;
+            }
+        }
+      
+        const items= [...messages];
+        items[index]=item;
+
+        dispatch({
+            type:actions.SET_MESSAGES,
+            payload:items
+        });
+        
     }
-    // const {contact,name,}=route.params.token;
 
 
 
@@ -46,8 +67,8 @@ const Chat = ({ navigation, route }) => {
             </View>
             <FlatList
                 data={messages}
-                renderItem={({ item }) => (
-                    <View>{console.log('item : ', item)}{(item.Message_from === route.params.Friend_phone) ?
+                renderItem={({ item,index}) => (
+                    <View>{console.log('index : ',index+' item : '+ item)}{(item.Message_from === route.params.Friend_phone) ?
                         <View style={{ marginVertical: 5, alignItems: 'flex-start', }}>
                             {item.Message_type === 'text' ?
                                 <View style={{ backgroundColor: 'skyblue', borderRadius: 5, width: '30%' }}>
@@ -56,27 +77,29 @@ const Chat = ({ navigation, route }) => {
                                 </View>
                                 : item.Message_type === 'image' ?
                                     <View style={{ borderRadius: 5, width: '30%' }}>
-                                        {isDownload ?
-                                            <Image source={{ uri: `data:image/jpeg;base64,${item.Message_content}` }} style={{ width: 70, height: 70, }} />
-                                            :
-                                            <TouchableOpacity onPress={() => getFile(item.Message_content, item.Message_type)}>
+                                        {item.Is_download?
+                                        <View>{console.log('saaad ka msg ',item.Message_content)}
+                                             <Image source={{ uri: `data:image/jpeg;base64,${item.Message_content}` }} style={{ width: 70, height: 70, }} />
+                                        </View>
+                                               :
+                                            <TouchableOpacity onPress={() => downloadBase64(index,item)}>
                                                 <MaterialCommunityIcons name={'download'} color='black' size={20} />
                                             </TouchableOpacity>
                                         }
                                     </View>
                                     :
                                     <View style={{ borderRadius: 5, }}>
-                                        {isDownload ?
+                                        {item.Is_download ?
                                             <PlayAudio item={item.Message_content} />
                                             :
-                                            <View style={{flexDirection:'row',width:150,justifyContent:'space-around'}}>
-                                                <TouchableOpacity onPress={() => getFile(item.Message_content, item.Message_type)}>
+                                            <View style={{ flexDirection: 'row', width: 150, justifyContent: 'space-around' }}>
+                                                <TouchableOpacity onPress={() => downloadBase64(index,item)}>
                                                     <MaterialCommunityIcons name={'download'} color='black' size={20} />
                                                 </TouchableOpacity>
-                                                <View style={{justifyContent:'center'}}>
-                                                <Progress.Bar progress={0} width={100} />
+                                                <View style={{ justifyContent: 'center' }}>
+                                                    <Progress.Bar progress={0} width={100} />
                                                 </View>
-                                             
+
                                             </View>
                                         }
                                         <Text style={{ alignSelf: 'flex-start' }}>5:46</Text>

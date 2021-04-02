@@ -54,6 +54,7 @@ const MessageBox = ({ route }) => {
             Message_type: messageType,
             Message_content: content,
             Message_time: Date.now(),
+            Is_download:false,
             isSeen: false,
         };
         sendMessageToServer(socket, msgInfo);

@@ -10,7 +10,7 @@ import { actions } from '../Store/Reducer';
 import { CustomActivityIndicator } from '../CustomActivityIndicator';
 import { ApiUrls } from '../API/ApiUrl';
 import { getData, postData } from '../API/ApiCalls'
-const image = require('E:/React_Native/DoctorTalk/DrTalk/src/images/logo.jpg');
+const image = require('../assets/images/logo.jpg');
 // E:\React_Native\DrTalk\src\images\logo.jpg
 
 const LogIn = ({ navigation }) => {
@@ -49,11 +49,7 @@ const LogIn = ({ navigation }) => {
                 const res = await postData(`${ApiUrls.doctor._addDoctor}`, { DName: name, DPhone: contact, isApproved: false, isReject: false });
                 console.log('post res ', res);
                 if (res && res.data !== 'null') {
-                    if (res.data.UType == 'Doctor') {
-                        navigation.navigate('Doctor');
-                    } else {
-                        navigation.navigate('Patient');
-                    }
+                    setData(res.data);  
                 }
                 else {
                    
@@ -83,15 +79,7 @@ const LogIn = ({ navigation }) => {
             // console.log('res in login press :', res);
 
             if (res && res.data !== 'null') {
-                setData(res.data);
-                if (res.data.UType == 'Doctor') {
-                    navigation.navigate('Doctor');
-                } else {
-                    navigation.navigate('Patient');
-                }
-
-               
-                // navigation.navigate('DrMainTabNavigator');
+                setData(res.data);  
             }
             else{
                 alert('invalid account');
@@ -129,7 +117,7 @@ const LogIn = ({ navigation }) => {
                 </View>
             </View>) :
                 (<View style={{ height: '50%', width: width, alignItems: 'center', }}>
-                    <TouchableOpacity onPress={() => onsignIn()} style={{ marginTop: 40, width: '90%', height: 40, backgroundColor: 'blue', marginHorizontal: 20, alignItems: 'center', borderRadius: 20, justifyContent: 'center' }}>
+                    <TouchableOpacity onPress={() => onsignIn()} style={{ marginTop: 40, width: '90%', height: 40, backgroundColor:'#7B39ED', marginHorizontal: 20, alignItems: 'center', borderRadius: 20, justifyContent: 'center' }}>
                         <Text style={{ color: '#ffff', fontWeight: 'bold', fontSize: 18 }}>LogIn</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={{ marginTop: 40, }} onPress={() => setIsSignUp(true)}>

@@ -53,6 +53,7 @@ const Recorder = ({ route }) => {
         Message_type: 'audio',
         Message_content:resp.data,
         Message_time:Date.now(),
+        Is_download:false,
         isSeen:false,
 
       };
@@ -119,7 +120,7 @@ const Recorder = ({ route }) => {
     }
     const path = Platform.select({
       ios: 'hello.m4a',
-      android: `sdcard/${Math.random()}.mp3`, // should give extra dir name in android. Won't grant permission to the first level of dir.
+      android: `${RNFS.DocumentDirectoryPath}${Math.random()}.mp3`, // should give extra dir name in android. Won't grant permission to the first level of dir.
     });
     const audioSet = {
       AudioEncoderAndroid: AudioEncoderAndroidType.AAC,

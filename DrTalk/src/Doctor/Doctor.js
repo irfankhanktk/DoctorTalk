@@ -7,7 +7,7 @@ import { getData } from '../API/ApiCalls';
 import { ApiUrls } from '../API/ApiUrl';
 import { actions } from '../Store/Reducer';
 import { useStateValue } from '../Store/StateProvider';
-const image = require('E:/React_Native/DoctorTalk/DrTalk/src/images/logo.jpg');
+const image = require('../assets/images/logo.jpg');
 // import Contacts from 'react-native-contacts'
 const DoctorScreen = ({ navigation }) => {
     const [state, dispatch] = useStateValue();

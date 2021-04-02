@@ -28,6 +28,8 @@ user:{
 message:{
   _PostAudioKey:'PostAudioKey',
   _PostImageKey:'PostImageKey',
+  _GetAudioString:'GetAudioString',
+  _GetImageString:'GetImageString',
 }
 
 }

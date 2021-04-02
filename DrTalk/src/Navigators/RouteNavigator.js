@@ -36,25 +36,25 @@ import MessageBox from '../MessageBox';
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
 
-function RouteNavigator({initialRoute}) {
+function RouteNavigator({ initialRoute }) {
   const [state, dispatch] = useStateValue();
   const { messages, token } = state;
   // const [text, setText] = useState('');
   const [socket, setSocket] = useState('');
-  
+
 
 
   const getData = async () => {
     const res = await AsyncStorage.getItem(s.user);
     // console.log('getdata res', res);
-    console.log('initiala route',initialRoute);
+
     if (res) {
       let userData = JSON.parse(res);
       const ioClient = socketClient('http://192.168.1.107:3000');
       setSocket(ioClient);
 
-  console.log('getdata user ',userData);
-    ioClient.emit('auth',userData);
+      console.log('getdata user ', userData);
+      ioClient.emit('auth', userData);
       dispatch({
         type: actions.SET_TOKEN,
         payload: userData
@@ -67,22 +67,33 @@ function RouteNavigator({initialRoute}) {
   };
 
   React.useEffect(() => {
-    getData();
-    
+    let is_mounted = true;
+    if (is_mounted) {
+      getData();
+    }
+
   }, []);
 
+
   return (
+
     <NavigationContainer>
-      <Drawer.Navigator screenOptions={{gestureEnabled:false}} initialRouteName={initialRoute} drawerContent={(props) => <CustomDrawerContent {...props}/>}>
-        {console.log('log in routenavi ',initialRoute)}
-        <Drawer.Screen name="Login" component={LogIn} />
-        <Drawer.Screen name="Patient" component={PatientMainDrawerNavigator} />
-      
-        <Drawer.Screen name='Doctor' component={DrMainDrawerNavigator} />
-        
+      <Drawer.Navigator screenOptions={{ gestureEnabled: false }} initialRouteName={initialRoute} drawerContent={(props) => <CustomDrawerContent {...props} />}>
+        {token ?
+          <>
+            {token.UType === 'Patient' ?
+              <Drawer.Screen name="Patient" component={PatientMainDrawerNavigator} />
+              :
+              <Drawer.Screen name='Doctor' component={DrMainDrawerNavigator} />
+            }
+          </>
+          :
+          <Drawer.Screen name="Login" component={LogIn} />
+        }
       </Drawer.Navigator>
     </NavigationContainer>
   );
+
 }
 
 export default RouteNavigator;
@@ -90,7 +101,7 @@ export default RouteNavigator;
 
 const DrMainDrawerNavigator = () => {
   return (
-    <Drawer.Navigator drawerContent={(props) => <CustomDrawerContent {...props}/>}>
+    <Drawer.Navigator drawerContent={(props) => <CustomDrawerContent {...props} />}>
       <Drawer.Screen name="Home" component={DrMainTabNavigator} />
     </Drawer.Navigator>
   );
@@ -124,15 +135,14 @@ const DrMainTabNavigator = () => {
 };
 const PatientMainDrawerNavigator = () => {
   return (
-    <Drawer.Navigator drawerContent={(props) => <CustomDrawerContent {...props}/>}>
-      <Drawer.Screen name="MessageBox" component={MessageBox}  />
-      <Drawer.Screen name="Home" component={PatientMainTabNavigator}  />
+    <Drawer.Navigator drawerContent={(props) => <CustomDrawerContent {...props} />}>
+      <Drawer.Screen name="Home" component={PatientMainTabNavigator} />
     </Drawer.Navigator>
   );
 };
 const PatientMainTabNavigator = () => {
   return (
-    <Tab.Navigator>
+    <Tab.Navigator tabBarOptions={{ keyboardHidesTabBar: true }}>
       <Tab.Screen name="Chat" component={ChatStack} options={{
         tabBarIcon: ({ focused, color, size }) => (
           <MaterialIcons name='chat' size={size} color={color} />
@@ -153,10 +163,10 @@ const PatientMainTabNavigator = () => {
 };
 
 const ChatStack = () => {
-  return(
-  <Stack.Navigator>
-    <Stack.Screen name={'ChatScreen'} component={ChatScreen} />
-    <Stack.Screen name={'ChatActivity'} component={Chat} />
-  </Stack.Navigator>
+  return (
+    <Stack.Navigator>
+      <Stack.Screen name={'ChatScreen'} component={ChatScreen} />
+      <Stack.Screen name={'ChatActivity'} component={Chat} />
+    </Stack.Navigator>
   );
 };

@@ -11,10 +11,10 @@ import { getData } from '../API/ApiCalls'
 import { Sessions } from '../AuthScreens/Sessions';
 import socketClient from "socket.io-client";
 
-const image = require('E:/React_Native/DoctorTalk/DrTalk/src/images/logo.jpg');
-const ioClient = socketClient('http://192.168.1.106:3000');
+const image = require('../assets/images/logo.jpg');
+const ioClient = socketClient('http://192.168.1.109:3000');
 // import Contacts from 'react-native-contacts'
-const ChatScreen = ({ navigation }) => {
+const ChatTab = ({ navigation }) => {
   const [state, dispatch] = useStateValue();
   const { allFriends, token, user,socket,messages} = state;
   // const { UPhone, UType } = user;
@@ -146,4 +146,4 @@ const ChatScreen = ({ navigation }) => {
     </View>
   );
 };
-export default ChatScreen;
+export default ChatTab;
