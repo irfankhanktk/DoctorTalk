@@ -41,7 +41,7 @@ const Chat = ({ navigation, route }) => {
     const downloadBase64 = async (index, item) => {
         console.log('tmitmtmtm  :', item);
         if (item.Message_type !== 'audio' && item.Message_type !== 'image') {
-            alert('check type content');
+            alert('check type content hello');
             return;
         }
 
