@@ -102,7 +102,7 @@ const LogIn = ({ navigation }) => {
                 </View>
             </View>
             {isSignUp ? (<View style={{ height: '50%', width: width, alignItems: 'center', }}>
-                <TouchableOpacity onPress={() => onSignUp()} style={{ marginTop: 20, width: '90%', marginHorizontal: 10, height: 40, backgroundColor: 'blue', alignItems: 'center', borderRadius: 20, justifyContent: 'center' }}>
+                <TouchableOpacity onPress={() => onSignUp()} style={{ marginTop: 20, width: '90%', marginHorizontal: 10, height: 40, backgroundColor: '0081fe', alignItems: 'center', borderRadius: 20, justifyContent: 'center' }}>
                     <Text style={{ color: '#ffff', fontWeight: 'bold', fontSize: 18 }}>Sign Up</Text>
                 </TouchableOpacity>
                 <View style={{ width: '80%', marginTop: 40, justifyContent: 'space-between', flexDirection: 'row' }} onPress={() => setIsSignUp(false)}>
@@ -117,7 +117,7 @@ const LogIn = ({ navigation }) => {
                 </View>
             </View>) :
                 (<View style={{ height: '50%', width: width, alignItems: 'center', }}>
-                    <TouchableOpacity onPress={() => onsignIn()} style={{ marginTop: 40, width: '90%', height: 40, backgroundColor:'#7B39ED', marginHorizontal: 20, alignItems: 'center', borderRadius: 20, justifyContent: 'center' }}>
+                    <TouchableOpacity onPress={() => onsignIn()} style={{ marginTop: 40, width: '90%', height: 40, backgroundColor:'#0081fe', marginHorizontal: 20, alignItems: 'center', borderRadius: 20, justifyContent: 'center' }}>
                         <Text style={{ color: '#ffff', fontWeight: 'bold', fontSize: 18 }}>LogIn</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={{ marginTop: 40, }} onPress={() => setIsSignUp(true)}>

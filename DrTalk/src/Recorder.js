@@ -37,8 +37,6 @@ const Recorder = ({ route }) => {
   const { user, messages,socket } = state;
   audioRecorderPlayer.setSubscriptionDuration(0.09); // optional. Default is 0.1
 
-
-
   async function sendAudioMessage(uri) {
     // get a list of files and directories in the main bundle
     const base64String = await RNFS.readFile(uri, "base64");

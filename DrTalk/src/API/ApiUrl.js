@@ -1,5 +1,5 @@
 export const ApiUrls = {
-  baseUrl: 'http://192.168.1.106/TestApi/api/std/',
+  baseUrl: 'http://192.168.0.104/TestApi/api/std/',
   auth: {
     // refreshToken: '',
     getUserIfExist: 'GetUserIfExist',
@@ -24,6 +24,7 @@ user:{
   _getUnfriendPatients:'GetUnfriendPatients',
   _getUnfriendDoctors:'GetUnfriendDoctors',
   _getMyFriendsFrequests:'GetMyFriendsFrequests',
+  _updateImage:'UpdateImage',
 },
 message:{
   _PostAudioKey:'PostAudioKey',

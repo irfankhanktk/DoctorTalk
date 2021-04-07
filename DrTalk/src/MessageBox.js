@@ -1,23 +1,23 @@
-import React, { useState } from 'react';
+import React, { createRef, useState } from 'react';
 import { Text, View, StyleSheet, Dimensions, TextInput, Image, TouchableOpacity, FlatList } from 'react-native';
 import Entypo from 'react-native-vector-icons/Entypo'
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons'
 import Modal from 'react-native-modal'
 const { height, width } = Dimensions.get('window');
-import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import { useStateValue } from './Store/StateProvider';
+import ActionSheet from "react-native-actions-sheet";
 import { actions } from './Store/Reducer';
 import Recorder from './Recorder';
 import { postData, sendMessageToServer } from './API/ApiCalls';
 import { ApiUrls } from './API/ApiUrl';
+import { cos } from 'react-native-reanimated';
+import { launchCamera ,launchImageLibrary} from 'react-native-image-picker';
+
+const actionSheetRef = createRef();
 
 const MessageBox = ({ route }) => {
     const [txtInputHeight, setTxtInputHeight] = useState(0.05);
     const [msg, setMsg] = useState('');
-    const [uri, setUri] = useState('');
-    const [gUri, setGUri] = useState('');
-    const [modalVisible, setModalVisible] = useState(false);
-    const [text, setText] = useState('');
     const [state, dispatch] = useStateValue();
     const { token, messages, socket, user } = state;
 
@@ -25,24 +25,19 @@ const MessageBox = ({ route }) => {
         const resp = await postData(ApiUrls.message._PostImageKey, { Image1: base64 });
         sendMessage(resp.data, 'image', base64);
     }
-    const selectCamera = () => {
-        setModalVisible(false);
+    const onCamera =async() => {
         launchCamera({
             includeBase64: true
         }, (response) => {
-            // setUri(response.uri);
-            setGUri(response.base64);
-            sendImage(response.base64);
+            response && response.base64 && sendImage(response.base64);
         });
-    };
+    }
 
-    const selectGallery = () => {
-        setModalVisible(false);
+    const onGallery =async() => {
         launchImageLibrary({
             includeBase64: true
         }, (response) => {
-            sendImage(response.base64);
-
+            response && response.base64 && sendImage(response.base64);
         });
     }
 
@@ -54,7 +49,7 @@ const MessageBox = ({ route }) => {
             Message_type: messageType,
             Message_content: content,
             Message_time: Date.now(),
-            Is_download:false,
+            Is_download: false,
             isSeen: false,
         };
         sendMessageToServer(socket, msgInfo);
@@ -62,13 +57,10 @@ const MessageBox = ({ route }) => {
         if (base64) {
             msgInfo.Message_content = base64;
         }
-        // const temp = Object.entries(messages);
-        //   const abc={...messages,...msgInfo}
-        // temp.push(msgInfo);
-        // const temp=[...messages];
+      
         messages.push(msgInfo);
-        console.log('messgaes abc--------- : :::::::::::::::::::::  ', messages);
-        // temp.push(msgInfo);
+      
+        
         dispatch({
             type: actions.SET_MESSAGES,
             payload: messages
@@ -89,10 +81,12 @@ const MessageBox = ({ route }) => {
 
     return (
         <View>
-            <View style={{ borderTopEndRadius: 10, borderTopEndRadius: 10, backgroundColor: 'gray', width: '100%', flexDirection: 'row', height: height * txtInputHeight, alignItems: 'flex-end', justifyContent: 'center' }}>
+            <View style={{ borderTopEndRadius: 10, borderTopEndRadius: 10, backgroundColor: 'gray', width: '100%', flexDirection: 'row', height: height * txtInputHeight, justifyContent: 'center' }}>
                 <TextInput onChangeText={text => setMsg(text)} value={msg} style={styles.InputTxt} width={'70%'} height={height * txtInputHeight} placeholder='type here' onContentSizeChange={() => updateSize()} numberOfLines={5} multiline />
                 <View style={{ flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', width: '30%' }}>
-                    <TouchableOpacity onPress={() => setModalVisible(true)}>
+                    <TouchableOpacity onPress={() => {
+                        actionSheetRef.current?.setModalVisible();
+                    }}>
                         <Entypo name='camera' size={25} />
                     </TouchableOpacity>
                     <Recorder route={route} />
@@ -101,36 +95,19 @@ const MessageBox = ({ route }) => {
                     </TouchableOpacity>
                 </View>
             </View>
-            <View style={styles.centeredView}>
-                <Modal
-                    onBackdropPress={() => setModalVisible(!modalVisible)}
-                    animationType="slide"
-                    transparent={true}
-                    visible={modalVisible}
-                    onRequestClose={() => {
-                        Alert.alert("Modal has been closed.");
-                        setModalVisible(!modalVisible);
-                    }}
-                >
-                    <View style={styles.centeredView}>
-                        <View style={styles.modalView}>
-                            <TouchableOpacity
-                                style={[styles.button, styles.buttonClose]}
-                                onPress={() => selectCamera()}
-                            >
-                                <Text style={styles.textStyle}>Camera</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                style={[styles.button, styles.buttonClose]}
-                                onPress={() => selectGallery()}
-                            >
-                                <Text style={styles.textStyle}>Gallery</Text>
-                            </TouchableOpacity>
-                        </View>
+            <ActionSheet ref={actionSheetRef}>
+                <View style={{ height: 200, padding: 20 }}>
+                    <Text style={{ fontSize: 20, fontWeight: 'bold' }}>Select Photo</Text>
+                    <View style={{ height: 100, alignItems: 'center', flexDirection: 'row' }}>
+                        <TouchableOpacity onPress={() => onCamera()}>
+                            <Image source={require('./assets/images/gallery.jpg')} style={styles.imgStyle} />
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => onGallery()}>
+                            <Image source={require('./assets/images/camera.jpg')} style={styles.imgStyle} />
+                        </TouchableOpacity>
                     </View>
-                </Modal>
-            </View>
-
+                </View>
+            </ActionSheet>
         </View>
     );
 };
@@ -139,8 +116,6 @@ export default MessageBox;
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        height: height,
-        width: width,
     },
     InputTxt: {
         borderTopEndRadius: 10,
@@ -190,5 +165,10 @@ const styles = StyleSheet.create({
     modalText: {
         marginBottom: 15,
         textAlign: "center"
-    }
+    },
+    imgStyle: {
+        width: 100,
+        height: 100,
+        borderRadius: 50
+    },
 });

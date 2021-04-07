@@ -4,6 +4,8 @@ import { View, Image, Text, TouchableOpacity, FlatList,} from 'react-native';
 import { getData } from '../API/ApiCalls';
 // import { SwipeableFlatList } from 'react-native-swipeable-flat-list';
 import { ApiUrls } from '../API/ApiUrl';
+import CustomHeader from '../CustomHeader';
+import CustomItem from '../CustomScreens/CustomItem';
 import { actions } from '../Store/Reducer';
 import { useStateValue } from '../Store/StateProvider';
 
@@ -38,23 +40,26 @@ const PatientScreen = ({ navigation }) => {
         
         }
       }, [user]);
+      console.log('allPatients',allPatients);
     return (
-        <View>
+        <>
+      <CustomHeader navigation={navigation}/>
             <FlatList
                 data={allPatients}
                 keyExtractor={(item,index) =>index+''}
                 itemBackgroundColor={'#fff'}
                 renderItem={({ item }) => (
-                    <TouchableOpacity style={{ width: '100%', height: 80, flexDirection: 'row', alignItems: 'center' }}>
-                        <Image style={{ left: 10, height: 50, width: 50, borderRadius: 50 }} source={image} />
-                        <Text style={{ left: 20 }}>{item.Un_name}{item.Un_phone}</Text>
-                    </TouchableOpacity>
+                    // <TouchableOpacity style={{ width: '100%', height: 80, flexDirection: 'row', alignItems: 'center' }}>
+                    //     <Image style={{ left: 10, height: 50, width: 50, borderRadius: 50 }} source={image} />
+                    //     <Text style={{ left: 20 }}>{item.Un_name}{item.Un_phone}</Text>
+                    // </TouchableOpacity>
+                    <CustomItem item={{phone:item.Un_phone,name:item.Un_name,image:item.Un_image}}/>
                 )}
                 ItemSeparatorComponent={() => (
                     <View style={{ height: 1, backgroundColor: 'lightgrey'}} />
                 )}
             />
-        </View>
+        </>
     );
 };
 export default PatientScreen;

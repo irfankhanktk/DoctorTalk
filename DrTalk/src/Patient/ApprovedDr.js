@@ -12,14 +12,14 @@ import { useStateValue } from '../Store/StateProvider';
 // import {createDrawerNavigator} from '@react-navigation/drawer';
 const image = require('../assets/images/logo.jpg');
 
-const Admin = ({ navigation }) => {
+const ApprovedDoctors = ({ navigation }) => {
     const [state, dispatch] = useStateValue();
     const { clients, token, user } = state;
     const [isloading, setIsloading] = useState(false);
     const [UnApprovedDr, setUnApprovedDr] = useState([]);
-    const getUnApprovedDoctors = async () => {
+    const getApprovedDoctors = async () => {
         setIsloading(true);
-        const res = await getData(ApiUrls.doctor._getUnApprovedDoctors);
+        const res = await getData(ApiUrls.doctor._getApprovedDoctors);
         if (res.status === 200) {
             console.log('res dr :', res);
 
@@ -48,7 +48,7 @@ const Admin = ({ navigation }) => {
         // console.log('phone : ',phone);
         // console.log('phone ',phone);
         setIsloading(true);
-        const res = await getData(`${ApiUrls.doctor._getUnApprovedDoctors}?uphone=${user.UPhone}}`);
+        const res = await getData(`${ApiUrls.doctor._getApprovedDoctors}?uphone=${user.UPhone}}`);
         console.log('res print ', res);
         if (res.status == 200) {
             console.log('res: ', res);
@@ -63,7 +63,7 @@ const Admin = ({ navigation }) => {
     }
     useEffect(() => {
         if (user) {
-            getUnApprovedDoctors();
+            getApprovedDoctors();
         }
 
     }, [user]);
@@ -84,21 +84,19 @@ const Admin = ({ navigation }) => {
                            <View>
                            <Text style={{ left: 20 }}>{item.DName}</Text>
                             {/* {item&&item.UType&&<Text style={{ left: 20 }}>{item.}</Text>} */}
-                            {/* <Text style={{ color: 'gray', left: 20 }}>Doctor Requested</Text> */}
+                            <Text style={{ color: 'gray', left: 20 }}>Doctor Requested</Text>
                            </View>     
                         </View>
                         <View style={{ flexDirection: 'row' }}>
-                            {/* <Text>4:45 pm</Text> */}
+                            <Text>4:45 pm</Text>
                         </View>
                     </TouchableOpacity>
                 )}
                 renderRight={({ item }) => (
-                    <View style={{ width: 200, height: 80, backgroundColor: 'gray', flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center' }}>
-                        <TouchableOpacity onPress={() => { }} style={{ backgroundColor: '#800000', height: 80, width: '50%', justifyContent: 'center', alignItems: 'center' }}>
-                            <Text style={styles.txtStyle}>Reject</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={() => { }} style={{ backgroundColor: '#8000ff', height: 80, width: '50%', justifyContent: 'center', alignItems: 'center' }}>
-                            <Text style={styles.txtStyle}>Confirm</Text>
+                    <View style={{ width: 100, height: 80, backgroundColor: 'gray', flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center' }}>
+                        
+                        <TouchableOpacity onPress={() => { }} style={{ backgroundColor: '#800000', height: 80, width: '100%', justifyContent: 'center', alignItems: 'center' }}>
+                            <Text style={styles.txtStyle}>Block</Text>
                         </TouchableOpacity>
                     </View>
                 )}
@@ -106,7 +104,7 @@ const Admin = ({ navigation }) => {
         </>
     );
 };
-export default Admin;
+export default ApprovedDoctors;
 const styles = StyleSheet.create({
     txtStyle: {
         color: 'white'
