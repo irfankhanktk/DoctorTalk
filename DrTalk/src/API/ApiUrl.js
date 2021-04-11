@@ -1,9 +1,5 @@
 export const ApiUrls = {
-  baseUrl: 'http://192.168.0.104/TestApi/api/std/',
-  auth: {
-    // refreshToken: '',
-    getUserIfExist: 'GetUserIfExist',
-  },
+  baseUrl: 'http://192.168.1.103:55569/api/DrPatient',
   doctor:{
     _getUnApprovedDoctors:'GetUnApprovedDoctor',
     _getApprovedDoctors:'GetApprovedDoctor', 

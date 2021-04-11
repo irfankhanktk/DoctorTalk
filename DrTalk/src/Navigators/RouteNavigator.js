@@ -180,7 +180,7 @@ const ChatStack = () => {
   return (
     <Stack.Navigator>
       <Stack.Screen name={'ChatScreen'} component={ChatScreen} options={{headerShown:false}}/>
-      <Stack.Screen name={'ChatActivity'} component={Chat}         options={{ headerTitle: props => <FriendProfile {...props} /> }}/>
+      <Stack.Screen name={'ChatActivity'} component={Chat} options={{ headerTitle: props => <FriendProfile {...props} /> }}/>
     </Stack.Navigator>
   );
 };

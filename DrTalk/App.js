@@ -11,6 +11,7 @@ import Recorder from './src/Recorder';
 import { MyApp } from './src/Doctor/RNDatePicker';
 import { StatusBar } from 'react-native';
 import ReadMyFile from './src/Doctor/ReadMyFile';
+import SqlLiteTest from './src/Doctor/SqlLiteTest';
 
 
 const App = () => {
@@ -42,16 +43,10 @@ const App = () => {
   }, []);
 
   return (
-    // <ReadMyFile/>
-    <SafeAreaProvider>
-       <StatusBar
-        animated={true}
-        backgroundColor="#0081fe"
-       />
+   
       <StateProvider reducer={reducer} initialState={initialState}>
         <RouteNavigator initialRoute={initialRoute} />
       </StateProvider>
-    </SafeAreaProvider>
   );
 };
 export default App;

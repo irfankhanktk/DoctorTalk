@@ -10,7 +10,9 @@ import { actions } from '../Store/Reducer';
 import { CustomActivityIndicator } from '../CustomActivityIndicator';
 import { ApiUrls } from '../API/ApiUrl';
 import { getData, postData } from '../API/ApiCalls'
+import Color from '../assets/Color/Color';
 const image = require('../assets/images/logo.jpg');
+import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 // E:\React_Native\DrTalk\src\images\logo.jpg
 
 const LogIn = ({ navigation }) => {
@@ -93,13 +95,15 @@ const LogIn = ({ navigation }) => {
 
             <CustomActivityIndicator visible={isloading} />
             <View style={styles.header}>
-                <Image source={image} style={{ height: 100, width: 100, borderRadius: 50, bottom: 80 }} />
-                <View style={{ width: width, alignItems: 'center', height: '40%', }}>
+                <View style={{ width:wp('100%'),height:'40%',justifyContent:'center',alignItems:'center' }}>
                     {isSignUp && (
                         <CustomInputText setOnChangeText={(t) => setName(t)} placeholder='Name here' iconName='user' />
                     )}
                     <CustomInputText setOnChangeText={(t) => setContact(t)} iconName='phone' placeholder='Mobile Number' />
+                    
                 </View>
+                <Image source={image} style={{ height:hp('100%'), width:wp('100%')}}/>
+
             </View>
             {isSignUp ? (<View style={{ height: '50%', width: width, alignItems: 'center', }}>
                 <TouchableOpacity onPress={() => onSignUp()} style={{ marginTop: 20, width: '90%', marginHorizontal: 10, height: 40, backgroundColor: '0081fe', alignItems: 'center', borderRadius: 20, justifyContent: 'center' }}>
@@ -117,7 +121,7 @@ const LogIn = ({ navigation }) => {
                 </View>
             </View>) :
                 (<View style={{ height: '50%', width: width, alignItems: 'center', }}>
-                    <TouchableOpacity onPress={() => onsignIn()} style={{ marginTop: 40, width: '90%', height: 40, backgroundColor:'#0081fe', marginHorizontal: 20, alignItems: 'center', borderRadius: 20, justifyContent: 'center' }}>
+                    <TouchableOpacity onPress={() => onsignIn()} style={{ marginTop: 40, width: '90%', height: 40, backgroundColor:Color.primary, marginHorizontal: 20, alignItems: 'center', borderRadius: 20, justifyContent: 'center' }}>
                         <Text style={{ color: '#ffff', fontWeight: 'bold', fontSize: 18 }}>LogIn</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={{ marginTop: 40, }} onPress={() => setIsSignUp(true)}>
@@ -157,15 +161,15 @@ const LogIn = ({ navigation }) => {
 export default LogIn;
 const styles = StyleSheet.create({
     container: {
-        width: width,
-        height: height,
+       flex:1,
+    //    width:'100%'
         // backgroundColor: '#32415e'
     },
     header: {
-        height: '50%',
-        width: width,
-        justifyContent: 'flex-end',
+        height: hp('50%'),
+        width: wp('100%'),
         alignItems: 'center',
+        flexDirection:'column-reverse'
     },
     centeredView: {
         height: height * 0.50,

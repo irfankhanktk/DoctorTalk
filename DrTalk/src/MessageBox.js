@@ -44,16 +44,15 @@ const MessageBox = ({ route }) => {
     const sendMessage = async (content, messageType, base64) => {
         console.log('base64:', base64);
         const msgInfo = {
-            Message_to: route.params.Friend_phone,
+            Message_to: route.params.phone,
             Message_from: user.UPhone,
             Message_type: messageType,
             Message_content: content,
-            Message_time: Date.now(),
+            Message_time: new Date(),
             Is_download: false,
             isSeen: false,
         };
         sendMessageToServer(socket, msgInfo);
-        console.log('base64 :', base64)
         if (base64) {
             msgInfo.Message_content = base64;
         }
