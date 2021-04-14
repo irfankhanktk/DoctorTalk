@@ -14,15 +14,14 @@ export const getData = async (relativeUrl) => {
       'Content-Type': 'application/json'
     }
   };
-  try {
+  
     const response = await axios(config)
       .then((res) => res)
-      .catch((error) => {
-        console.log(error)});
+      .catch((error) =>
+      {
+        return {status:404};
+      });
     return response;
-  } catch (err) {
-    return err;
-  }
 };
 
 
@@ -38,14 +37,13 @@ export const postData = async (relativeUrl,data) => {
     },
     data:data,
   };
-  try {
     const response = await axios(config)
       .then((res) => res)
-      .catch((error) => error);
+      .catch((error) =>  {
+        return {status:500};
+      });
     return response;
-  } catch (err) {
-    return { status: null };
-  }
+ 
 };
 
 export const sendMessageToServer=async(socket,msgInfo)=>{

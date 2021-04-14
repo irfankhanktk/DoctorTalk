@@ -88,10 +88,10 @@ function RouteNavigator({ initialRoute }) {
       <Drawer.Navigator screenOptions={{ gestureEnabled: false }} initialRouteName={initialRoute} drawerContent={(props) => <CustomDrawerContent {...props} />}>
         {token ?
           <>
-            {token.UType === 'Patient' ?
+            {token.Role === 'Patient' ?
               <Drawer.Screen name="Patient" component={PatientMainDrawerNavigator} />
-              :token.UType === 'Admin' ?<Drawer.Screen name='Admin' component={AdminMainDrawerNavigator}/>
-              :<Drawer.Screen name='Doctor' component={DrMainDrawerNavigator} />
+              :token.Role === 'Admin' ?<Drawer.Screen name='Admin' component={AdminMainDrawerNavigator}/>
+              :<Drawer.Screen name='Doctor' component={DrMainDrawerNavigator}/>
             }
           </>
           :

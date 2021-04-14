@@ -8,6 +8,8 @@ import CustomHeader from '../CustomHeader';
 import CustomItem from '../CustomScreens/CustomItem';
 import { actions } from '../Store/Reducer';
 import { useStateValue } from '../Store/StateProvider';
+import Role from './Role';
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
 const image = require('../assets/images/logo.jpg');
 
@@ -16,17 +18,19 @@ const PatientScreen = ({ navigation }) => {
     const {allPatients,user,} = state;
 
     const getPatientsData = async () => {
-        const res_Patients = await getData(`${ApiUrls.user._getUnfriendPatients}?UPhone=${user.UPhone}`);
-         console.log('res friends: ', res_Patients);
-        if (res_Patients && res_Patients.data !== 'null') {
+        const res = await getData(`${ApiUrls.User._getUsersBYRole}?Role=${Role.Patient}`);
+         console.log('res res: ', res);
+        if (res.status===200) {
+         console.log('res res.data: ', res.data);
+
           dispatch({
             type: actions.SET_All_PATIENTS,
-            payload: res_Patients.data
+            payload: res.data
           });
     
         }
-        else if (res_Patients && res_Patients.data === 'null') {
-
+        else{
+          alert('Check Your Internet Connection');
           dispatch({
             type: actions.SET_All_PATIENTS,
             payload: []
@@ -49,14 +53,10 @@ const PatientScreen = ({ navigation }) => {
                 keyExtractor={(item,index) =>index+''}
                 itemBackgroundColor={'#fff'}
                 renderItem={({ item }) => (
-                    // <TouchableOpacity style={{ width: '100%', height: 80, flexDirection: 'row', alignItems: 'center' }}>
-                    //     <Image style={{ left: 10, height: 50, width: 50, borderRadius: 50 }} source={image} />
-                    //     <Text style={{ left: 20 }}>{item.Un_name}{item.Un_phone}</Text>
-                    // </TouchableOpacity>
-                    <CustomItem item={{phone:item.Un_phone,name:item.Un_name,image:item.Un_image}}/>
+                    <CustomItem item={item}/>
                 )}
                 ItemSeparatorComponent={() => (
-                    <View style={{ height: 1, backgroundColor: 'lightgrey'}} />
+                  <View style={{ height: 1, backgroundColor: 'lightgray' }} />
                 )}
             />
         </>

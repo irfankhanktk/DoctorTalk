@@ -12,6 +12,8 @@ import { useStateValue } from '../Store/StateProvider';
 import { actions } from '../Store/Reducer';
 import { CommonActions } from '@react-navigation/native';
 import { color } from 'react-native-reanimated';
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
+
 const image = require('../assets/images/logo.jpg');
 export function CustomDrawerContent(props) {
   const [state, dispatch] = useStateValue();
@@ -35,20 +37,19 @@ export function CustomDrawerContent(props) {
         end={{ x: 1, y: 0 }}
       >
         <View style={styles.profileStyle}>
-          {user && user.UImage ?
-            <Image source={{ uri: `data:image/jpeg;base64,${user.UImage}` }} style={styles.imgStyle} />
+          {user && user.Image ?
+            <Image source={{ uri: `data:image/jpeg;base64,${user.Image}` }} style={styles.imgStyle} />
             : <Image source={image} style={styles.imgStyle} />
           }
           {/* {user && user.UImage ? <Image source={image} style={styles.imgStyle} />
             : <Image source={image} style={styles.imgStyle} />} */}
-          {user && user.UName ? <Text>{user.UName}</Text>
+          {user && user.Name ? <Text>{user.Name}</Text>
             : <Text>No Name</Text>}
-          {user && user.UType ? <Text>({user.UType})</Text>
+          {user && user.Role ? <Text>({user.Role})</Text>
             : <Text>No Role</Text>}
         </View>
       </LinearGradient>
       <DrawerItemList {...props} />
-
       <DrawerItem
         icon={({ focused, color, size }) => (
           <MaterialCommunityIcons name='logout' size={size} color={color} />

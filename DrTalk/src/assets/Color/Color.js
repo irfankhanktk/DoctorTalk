@@ -1,3 +1,4 @@
 export default{
-    primary:'#0081fe'
+    primary:'#0081fe',
+    btnPrimary:'#007acc'
 }

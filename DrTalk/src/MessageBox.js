@@ -12,6 +12,7 @@ import { postData, sendMessageToServer } from './API/ApiCalls';
 import { ApiUrls } from './API/ApiUrl';
 import { cos } from 'react-native-reanimated';
 import { launchCamera ,launchImageLibrary} from 'react-native-image-picker';
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
 const actionSheetRef = createRef();
 
@@ -44,17 +45,17 @@ const MessageBox = ({ route }) => {
     const sendMessage = async (content, messageType, base64) => {
         console.log('base64:', base64);
         const msgInfo = {
-            Message_to: route.params.phone,
-            Message_from: user.UPhone,
-            Message_type: messageType,
-            Message_content: content,
-            Message_time: new Date(),
+            To_ID: route.params.Phone,
+            From_ID: user.Phone,
+            Message_Type: messageType,
+            Message_Content: content,
+            Message_Time: new Date(),
             Is_download: false,
-            isSeen: false,
+            IsSeen: false,
         };
         sendMessageToServer(socket, msgInfo);
         if (base64) {
-            msgInfo.Message_content = base64;
+            msgInfo.Message_Content = base64;
         }
       
         messages.push(msgInfo);

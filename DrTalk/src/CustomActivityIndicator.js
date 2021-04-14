@@ -8,7 +8,7 @@ const CustomActivityIndicator = ({ visible }) => (
     <View style={styles.centeredView}>
       <View style={styles.modalView}>
         <ActivityIndicator size="large" color="blue" />
-        <Text style={{  fontSize: 15 }}>Please wait...</Text>
+        <Text style={{  fontSize: 15 }}>Loading...</Text>
       </View>
     </View>
   </Modal>

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useEffect } from 'react';
 import { View, Image, Text, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
-import { SwipeableFlatList } from 'react-native-swipeable-flat-list';
+import { SwipeableFlatList } from 'react-native-swipeable-list';
 import { useState } from 'react/cjs/react.development';
 import { getData } from '../API/ApiCalls';
 import { ApiUrls } from '../API/ApiUrl';

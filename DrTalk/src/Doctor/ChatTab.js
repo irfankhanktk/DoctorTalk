@@ -8,6 +8,8 @@ import { getData } from '../API/ApiCalls'
 import socketClient from "socket.io-client";
 import CustomItem from '../CustomScreens/CustomItem';
 import CustomHeader from '../CustomHeader';
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
+
 const image = require('../assets/images/logo.jpg');
 const ioClient = socketClient('http://192.168.1.106:3000');
 const ChatTab = ({ navigation }) => {
@@ -16,17 +18,17 @@ const ChatTab = ({ navigation }) => {
  
   const getFriendsData = async () => {
     console.log('socket after con: ',socket)
-    const res_Friends = await getData(`${ApiUrls.user._getMyFriends}?UPhone=${user.UPhone}`);
+    const res_Friends = await getData(`${ApiUrls.Friend._getMyFriends}?Phone=${user.Phone}`);
     //  console.log('res friends: ', res_Friends);
-    if (res_Friends && res_Friends.data !== 'null') {
+    if (res_Friends.status===200) {
       dispatch({
         type: actions.SET_All_FRIENDS,
         payload: res_Friends.data
       });
 
     }
-    else if (res_Friends && res_Friends.data === 'null') {
-      // alert('no friends');
+    else {
+      alert('Check Your internet Connections');
       dispatch({
         type: actions.SET_All_FRIENDS,
         payload: []
@@ -76,9 +78,7 @@ const ChatTab = ({ navigation }) => {
    
 
   }
-  useEffect(() => {
-    
-  }, []);
+
   useEffect(() => {
     if (user) {
 
@@ -97,10 +97,10 @@ const ChatTab = ({ navigation }) => {
         keyExtractor={(item, index) => index + ''}
         itemBackgroundColor={'#fff'}
         renderItem={({ item }) => (
-          <CustomItem item={{phone:item.Friend_phone,name:item.Friend_name,image:item.Friend_img,role:item.Friend_status}} screen={'ChatActivity'} navigation={navigation}/>
+          <CustomItem item={item} screen={'ChatActivity'} navigation={navigation}/>
         )}
         ItemSeparatorComponent={() => (
-          <View style={{ height: 1, backgroundColor: 'lightgrey' }} />
+          <View style={{ height: 1,}}/>
         )}
       />
     </>

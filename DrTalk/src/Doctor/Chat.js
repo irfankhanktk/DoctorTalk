@@ -35,29 +35,30 @@ const Chat = ({ navigation, route }) => {
         navigation.setOptions({
             headerTitle:
                 <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around' }}>
-                    {route && route.params.image && <Image source={{ uri: `data:image/jpeg;base64,${route.params.image}` }} style={styles.imgStyle} />}
-                    <Text style={{ left: 10 }}>{route.params.name}</Text>
+                    {route && route.params.Image?<Image source={{ uri: `data:image/jpeg;base64,${route.params.Image}` }} style={styles.imgStyle} />:
+                    <Image source={image} style={styles.imgStyle} />}
+                    <Text style={{ left: 10 }}>{route.params.Name}</Text>
                 </TouchableOpacity>
         })
     }
     const downloadBase64 = async (index, item) => {
-        if (item.Message_type !== 'audio' && item.Message_type !== 'image') {
+        if (item.Message_Type !== 'audio' && item.Message_Type !== 'image') {
             alert('check type content hello');
             return;
         }
 
-        if (item.Message_type === 'audio') {
-            const resp = await getData(`${ApiUrls.message._GetAudioString}?Audio_key=${item.Message_content}`);
+        if (item.Message_Type === 'audio') {
+            const resp = await getData(`${ApiUrls.message._GetAudioString}?Audio_key=${item.Message_Content}`);
             if (resp && resp.data) {
                 item.Is_download = true;
-                item.Message_content = resp.data.Audio1;
+                item.Message_Content = resp.data.Audio1;
             }
         }
         else {
-            const resp = await getData(`${ApiUrls.message._GetImageString}?Image_key=${item.Message_content}`);
+            const resp = await getData(`${ApiUrls.message._GetImageString}?Image_key=${item.Message_Content}`);
             if (resp && resp.data) {
                 item.Is_download = true;
-                item.Message_content = resp.data.Image1;
+                item.Message_Content = resp.data.Image1;
             }
         }
 
@@ -152,18 +153,18 @@ const Chat = ({ navigation, route }) => {
                     <FlatList
                         data={messages}
                         renderItem={({ item, index }) => (
-                            <View >{(item.Message_from === route.params.phone) ?
+                            <View >{(item.From_ID === route.params.Phone) ?
                                 <View style={{ marginVertical: 5, alignItems: 'flex-start', }}>
-                                    {item.Message_type === 'text' ?
+                                    {item.Message_Type === 'text' ?
                                         <View style={{ backgroundColor: 'skyblue', borderRadius: 5, width: '30%' }}>
-                                            <Text style={{ fontSize: 20 }}>{item.Message_content}</Text>
+                                            <Text style={{ fontSize: 20 }}>{item.Message_Content}</Text>
                                             <Text style={{ alignSelf: 'flex-end' }}>5:40</Text>
                                         </View>
-                                        : item.Message_type === 'image' ?
+                                        : item.Message_Type === 'image' ?
                                             <View style={{ borderRadius: 5, width: '30%' }}>
                                                 {item.Is_download ?
-                                                    <View>{console.log('saaad ka msg ', item.Message_content)}
-                                                        <Image source={{ uri: `data:image/jpeg;base64,${item.Message_content}` }} style={{ width: 70, height: 70, }} />
+                                                    <View>{console.log('saaad ka msg ', item.Message_Content)}
+                                                        <Image source={{ uri: `data:image/jpeg;base64,${item.Message_Content}` }} style={{ width: 70, height: 70, }} />
                                                     </View>
                                                     :
                                                     <TouchableOpacity onPress={() => downloadBase64(index, item)}>
@@ -174,7 +175,7 @@ const Chat = ({ navigation, route }) => {
                                             :
                                             <View style={{ borderRadius: 5, }}>
                                                 {item.Is_download ?
-                                                    <PlayAudio item={item.Message_content} />
+                                                    <PlayAudio item={item.Message_Content} />
                                                     :
                                                     <View style={{ flexDirection: 'row', width: 150, justifyContent: 'space-around' }}>
                                                         <TouchableOpacity onPress={() => downloadBase64(index, item)}>
@@ -190,21 +191,21 @@ const Chat = ({ navigation, route }) => {
                                             </View>
                                     }
                                 </View>
-                                : item.Message_to === route.params.phone &&
+                                : item.To_ID === route.params.Phone &&
                                 <View style={{ marginVertical: 5, right: 0, alignItems: 'flex-end', }}>
-                                    {item.Message_type === 'text' ?
+                                    {item.Message_Type === 'text' ?
                                         <View style={{ backgroundColor: 'skyblue', borderRadius: 5, width: '30%' }}>
-                                            <Text style={{ fontSize: 20 }}>{item.Message_content}</Text>
+                                            <Text style={{ fontSize: 20 }}>{item.Message_Content}</Text>
                                             <Text style={{ alignSelf: 'flex-end' }}>5:40</Text>
                                         </View>
-                                        : item.Message_type === 'image' ?
+                                        : item.Message_Type === 'image' ?
                                             <View style={{ borderRadius: 5, width: '30%' }}>
-                                                <Image source={{ uri: `data:image/jpeg;base64,${item.Message_content}` }} style={{ width: 70, height: 70, }} />
+                                                <Image source={{ uri: `data:image/jpeg;base64,${item.Message_Content}` }} style={{ width: 70, height: 70, }} />
                                                 <Text style={{ alignSelf: 'flex-end' }}>5:46</Text>
                                             </View>
                                             :
                                             <View style={{ borderRadius: 5 }}>
-                                                <PlayAudio item={item.Message_content} />
+                                                <PlayAudio item={item.Message_Content} />
                                                 <Text style={{ alignSelf: 'flex-end' }}>5:46</Text>
                                             </View>
                                     }

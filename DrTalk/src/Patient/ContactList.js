@@ -1,7 +1,7 @@
 import React from 'react';
 import { useEffect } from 'react';
 import { View, Image, Text, TouchableOpacity,Share,PermissionsAndroid} from 'react-native';
-import { SwipeableFlatList } from 'react-native-swipeable-flat-list';
+import { SwipeableFlatList } from 'react-native-swipeable-list';
 import { useState } from 'react/cjs/react.development';
 import { getData } from '../API/ApiCalls';
 import { ApiUrls } from '../API/ApiUrl';
@@ -59,7 +59,6 @@ const PatienList = ({ navigation }) => {
       useEffect(()=>{
         //   getAllPatient();
           addContact();
-          console.log('STATE :',JSON.parse(token).contact);
       },[]);
     return (
         <View>
