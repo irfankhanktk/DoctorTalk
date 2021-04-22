@@ -1,0 +1,61 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+  <EntityContainerMapping StorageEntityContainer="DoctorPatientModelStoreContainer" CdmEntityContainer="DoctorPatientEntities">
+    <EntitySetMapping Name="BlockedUsers">
+      <EntityTypeMapping TypeName="DoctorPatientModel.BlockedUser">
+        <MappingFragment StoreEntitySet="BlockedUser">
+          <ScalarProperty Name="Block_id" ColumnName="Block_id" />
+          <ScalarProperty Name="BlockByPhone" ColumnName="BlockByPhone" />
+          <ScalarProperty Name="BlockUserPhone" ColumnName="BlockUserPhone" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Friends">
+      <EntityTypeMapping TypeName="DoctorPatientModel.Friend">
+        <MappingFragment StoreEntitySet="Friend">
+          <ScalarProperty Name="Friend_Type" ColumnName="Friend_Type" />
+          <ScalarProperty Name="IsBlock_From" ColumnName="IsBlock_From" />
+          <ScalarProperty Name="IsBlock_To" ColumnName="IsBlock_To" />
+          <ScalarProperty Name="Friend_ID" ColumnName="Friend_ID" />
+          <ScalarProperty Name="To_ID" ColumnName="To_ID" />
+          <ScalarProperty Name="From_ID" ColumnName="From_ID" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Invitations">
+      <EntityTypeMapping TypeName="DoctorPatientModel.Invitation">
+        <MappingFragment StoreEntitySet="Invitation">
+          <ScalarProperty Name="Invitaion_id" ColumnName="Invitaion_id" />
+          <ScalarProperty Name="FriendA_phone" ColumnName="FriendA_phone" />
+          <ScalarProperty Name="FriendB_phone" ColumnName="FriendB_phone" />
+          <ScalarProperty Name="Invitation_code" ColumnName="Invitation_code" />
+          <ScalarProperty Name="Invitation_type" ColumnName="Invitation_type" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Messages">
+      <EntityTypeMapping TypeName="DoctorPatientModel.Message">
+        <MappingFragment StoreEntitySet="Message">
+          <ScalarProperty Name="Is_Seen" ColumnName="Is_Seen" />
+          <ScalarProperty Name="Message_ID" ColumnName="Message_ID" />
+          <ScalarProperty Name="From_ID" ColumnName="From_ID" />
+          <ScalarProperty Name="To_ID" ColumnName="To_ID" />
+          <ScalarProperty Name="Message_Content" ColumnName="Message_Content" />
+          <ScalarProperty Name="Message_Type" ColumnName="Message_Type" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Users">
+      <EntityTypeMapping TypeName="DoctorPatientModel.User">
+        <MappingFragment StoreEntitySet="User">
+          <ScalarProperty Name="Phone" ColumnName="Phone" />
+          <ScalarProperty Name="Name" ColumnName="Name" />
+          <ScalarProperty Name="Image" ColumnName="Image" />
+          <ScalarProperty Name="Role" ColumnName="Role" />
+          <ScalarProperty Name="IsApproved" ColumnName="IsApproved" />
+          <ScalarProperty Name="IsRejected" ColumnName="IsRejected" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+  </EntityContainerMapping>
+</Mapping>

@@ -1,0 +1,61 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Schema Namespace="DoctorPatientModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+  <EntityType Name="BlockedUser">
+    <Key>
+      <PropertyRef Name="Block_id" />
+    </Key>
+    <Property Name="Block_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="BlockByPhone" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+    <Property Name="BlockUserPhone" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+  </EntityType>
+  <EntityType Name="Friend">
+    <Key>
+      <PropertyRef Name="Friend_ID" />
+    </Key>
+    <Property Name="Friend_ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="To_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+    <Property Name="From_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+    <Property Name="IsBlock_To" Type="Boolean" />
+    <Property Name="IsBlock_From" Type="Boolean" />
+    <Property Name="Friend_Type" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+  </EntityType>
+  <EntityType Name="Invitation">
+    <Key>
+      <PropertyRef Name="Invitaion_id" />
+    </Key>
+    <Property Name="Invitaion_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="FriendA_phone" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+    <Property Name="FriendB_phone" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+    <Property Name="Invitation_code" Type="String" MaxLength="4" FixedLength="false" Unicode="false" />
+    <Property Name="Invitation_type" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+  </EntityType>
+  <EntityType Name="Message">
+    <Key>
+      <PropertyRef Name="Message_ID" />
+    </Key>
+    <Property Name="Message_ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="From_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+    <Property Name="To_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+    <Property Name="Message_Content" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+    <Property Name="Message_Type" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+    <Property Name="Is_Seen" Type="Boolean" />
+  </EntityType>
+  <EntityType Name="User">
+    <Key>
+      <PropertyRef Name="Phone" />
+    </Key>
+    <Property Name="Phone" Type="String" MaxLength="11" FixedLength="false" Unicode="true" Nullable="false" />
+    <Property Name="Name" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Name="Image" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+    <Property Name="Role" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+    <Property Name="IsApproved" Type="Boolean" />
+    <Property Name="IsRejected" Type="Boolean" />
+  </EntityType>
+  <EntityContainer Name="DoctorPatientEntities" annotation:LazyLoadingEnabled="true">
+    <EntitySet Name="BlockedUsers" EntityType="Self.BlockedUser" />
+    <EntitySet Name="Friends" EntityType="Self.Friend" />
+    <EntitySet Name="Invitations" EntityType="Self.Invitation" />
+    <EntitySet Name="Messages" EntityType="Self.Message" />
+    <EntitySet Name="Users" EntityType="Self.User" />
+  </EntityContainer>
+</Schema>
