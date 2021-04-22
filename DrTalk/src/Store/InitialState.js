@@ -1,7 +1,7 @@
 export const initialState = {
     user:null,
     token:null,
-    allPatients:[],
+    allUsers:[],
     allDoctors: [],
     msg:'',
     socket:{},

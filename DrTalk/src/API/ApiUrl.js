@@ -1,41 +1,33 @@
+export const IP='http://192.168.1.102';
 export const ApiUrls = {
-  baseUrl: 'http://192.168.1.103/DrPatient_API/api/',
+  baseUrl: `${IP}/DrPatient_API/api/`,
   auth:{
         signIn:'User/IsUser',
         SignUp:'',
   },
-  doctor:{
-    _getUnApprovedDoctors:'GetUnApprovedDoctor',
-    _getApprovedDoctors:'GetApprovedDoctor', 
-    _getRejectedDoctors:'GetRejectedDoctor',
-    _rejectDoctor:'GetDoctorReject',
-    _approveDoctor:'GetDoctorApprove',
-    _addDoctor:'PostAddDoctor',
-  },
-patient:{
-  _getAllPatient:'GetAllPatients',
-  _invitation:{
-    _invitePatient:'GetPateintInvited',
-    _addPatient:'PostAddPateint',
-  }
-},
 User:{
   _addUser:'/User/PostUser',
-  _getUsersBYRole:'/User/GetUsersBYRole',
-  // _getUnfriendDoctors:'GetUnfriendDoctors',
-  // _getMyFriendsFrequests:'GetMyFriendsFrequests',
+  _getAllUsers:'/User/GetUsers',
   _updateImage:'UpdateImage',
 },
 Friend:{
-  _getMyFriends:'Friends/GetFriends',
-  _getFriendRequests:'Friends/GetFriendRequests',
-  _alterRequest:'Friends/AlterRequest',
+  _getMyFriends:'Friend/GetFriends',
+  _getFriendRequests:'Friend/GetFriendRequests',
+  _alterRequest:'Friend/AlterRequest',
+  _addFriend:'Friend/AddFriend',
+  _blockFriend:'Friend/BlockFriend',
+  _unBlockFriend:'Friend/UnBlockFriend',
 },
-message:{
-  _PostAudioKey:'PostAudioKey',
-  _PostImageKey:'PostImageKey',
-  _GetAudioString:'GetAudioString',
-  _GetImageString:'GetImageString',
+Message:{
+  _postMessage:'Message/PostMessage',
+  _getMessage:'Message/GetMessage',
+  _getMessages:'Message/GetMessages',
+  _deleteMessages:'Message/DeleteMessages',
+
+
+  // _PostImageKey:'PostImageKey',
+  // _GetAudioString:'GetAudioString',
+  // _GetImageString:'GetImageString',
 }
 
 }

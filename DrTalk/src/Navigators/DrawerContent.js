@@ -27,6 +27,10 @@ export function CustomDrawerContent(props) {
       type: actions.SET_TOKEN,
       payload: null
     });
+    dispatch({
+      type: actions.SET_USER,
+      payload: null
+    });
   };
   return (
     <DrawerContentScrollView {...props}>

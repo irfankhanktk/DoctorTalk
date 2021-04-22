@@ -55,7 +55,7 @@ const LogIn = ({ navigation }) => {
             else {
                 const res = await postData(`${ApiUrls.User._addUser}`, { Name: name, Phone: contact,Role:'Doctor', isApproved: false, isRejected: false });
                 console.log('post res ', res);
-                if (res && res.data !== 'null') {
+                if (res && res.status===200) {
                     setData(res.data);
                 }
                 else {
@@ -77,7 +77,7 @@ const LogIn = ({ navigation }) => {
         }
         else {
             setIsloading(true);
-            const res = await getData(`${ApiUrls.auth.signIn}?phone=${contact}`);
+            const res = await getData(`${ApiUrls.auth.signIn}?Phone=${contact}`);
             console.log('res in login press :', res);
 
             if (res.status === 200 && res.data) {
@@ -98,13 +98,15 @@ const LogIn = ({ navigation }) => {
         setIsSignUp(false);
         setIsPatient(false);
     }
-    // const setSignUpScreen=()=>{
-    //     setIsSignUp(true);
-    //     setIsPatient(true);
-    // }
+   useEffect(()=>{
+    //    setTimeout(() => {
+    //        setIsloading(false);
+    //    }, 2000);
+    return(()=>{});
+   },[]);
     return (
         <ScrollView style={styles.container}>
-            <CustomActivityIndicator visible={isloading} />
+            <CustomActivityIndicator visible={isloading}/>
             <View style={styles.ImgContainer}>
                 <Image source={image} style={{ height: hp('30%'), width: wp('100%') }} />
             </View>

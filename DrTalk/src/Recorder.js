@@ -17,6 +17,7 @@ import { useStateValue } from './Store/StateProvider';
 import { actions } from './Store/Reducer';
 import { postData, sendMessageToServer } from './API/ApiCalls';
 import { ApiUrls } from './API/ApiUrl';
+import { insert } from './API/DManager';
 
 const audioRecorderPlayer = new AudioRecorderPlayer();
 const Recorder = ({ route }) => {
@@ -40,29 +41,31 @@ const Recorder = ({ route }) => {
   async function sendAudioMessage(uri) {
     // get a list of files and directories in the main bundle
     const base64String = await RNFS.readFile(uri, "base64");
-    
-    const resp = await postData(ApiUrls.message._PostAudioKey, {Audio1:base64String});
-    if (resp.data !== 'null') {
+    const msgInfo = {
+      Friend_ID:route.params.Friend_ID,
+      From_ID: user.Phone,
+      To_ID: route.params.Phone,
+      Message_Type: 'audio',
+      Message_Content:base64String,
+      Is_Download:0,
+      // Message_time:Date.now(),
+      Is_Seen:0,
+    };
+    insert('Message'+route.params.Friend_ID,'From_ID,To_ID,Message_Content,Message_Type,Is_Seen,Is_Download',[user.Phone,route.params.Phone,uri,'audio',1,1],'?,?,?,?,?,?');
+    const resp = await postData(ApiUrls.Message._postMessage,msgInfo);
+    if (resp.status===200) {
       console.log('response : ', resp.data);
-      console.log('time: ',Date.now());
-       const msgInfo = {
-        Message_to: route.params.Friend_phone,
-        Message_from: user.UPhone,
-        Message_type: 'audio',
-        Message_content:resp.data,
-        Message_time:Date.now(),
-        Is_download:false,
-        isSeen:false,
-
-      };
+      // console.log('time: ',Date.now());
+      msgInfo.Message_Content=resp.data;
       sendMessageToServer(socket,msgInfo);
+      console.log('audio uri: ',uri);
       console.log('msg info with key for audio: ',msgInfo);
       msgInfo.Message_content=base64String;
-      messages.push(msgInfo);
-      dispatch({
-        type:actions.SET_MESSAGES,
-        payload:messages
-      })
+      // messages.push(msgInfo);
+      // dispatch({
+      //   type:actions.SET_MESSAGES,
+      //   payload:messages
+      // })
      
 
     }

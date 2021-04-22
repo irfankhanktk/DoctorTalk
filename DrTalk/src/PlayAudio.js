@@ -188,7 +188,9 @@ const PlayAudio = ({item}) => {
         console.log('onStartPlay');
         const path = Platform.select({
             ios: 'hello.m4a',
-            android: `data:audio/mp3;base64,${item}`, // should give extra dir name in android. Won't grant permission to the first level of dir.
+             android:item, // should give extra dir name in android. Won't grant permission to the first level of dir.
+           
+            // android: `data:audio/mp3;base64,${item}`, // should give extra dir name in android. Won't grant permission to the first level of dir.
         });
 
         const msg = await audioRecorderPlayer.startPlayer(path);

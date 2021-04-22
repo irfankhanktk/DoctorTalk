@@ -1,7 +1,7 @@
 export const actions = {
     SET_USER: 'set_user',
     SET_TOKEN: 'set_token',
-    SET_All_PATIENTS: 'set_all_patients',
+    SET_All_USERS: 'set_all_users',
     SET_All_DOCTORS: 'set_all_doctors',
     SET_All_REQUESTS: 'set_all_requests',
     SET_All_FRIENDS: 'set_all_friends',
@@ -26,10 +26,10 @@ export const reducer = (state, action) => {
                 ...state,
                 audio: action.payload,
             };
-        case actions.SET_All_PATIENTS:
+        case actions.SET_All_USERS:
             return {
                 ...state,
-                allPatients: action.payload,
+                allUsers: action.payload,
             };
         case actions.SET_All_REQUESTS:
             return {

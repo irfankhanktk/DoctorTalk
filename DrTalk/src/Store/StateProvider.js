@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useReducer } from 'react';
+import React, { createContext, useContext, useReducer} from 'react';
 // import PropTypes from 'prop-types';
 import { initialState } from './InitialState';
 export const StateContext = createContext(initialState);

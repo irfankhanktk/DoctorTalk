@@ -21,7 +21,6 @@ const RequestScreen = ({ navigation }) => {
   // console.log('Request screen    ', allRequests);
   const getRequestsData = async () => {
     const res = await getData(`${ApiUrls.Friend._getFriendRequests}?Phone=${user.Phone}`);
-    console.log('res requests: ', res);
     if (res.status === 200) {
       dispatch({
         type: actions.SET_All_REQUESTS,
@@ -39,14 +38,13 @@ const RequestScreen = ({ navigation }) => {
   useEffect(() => {
     if (user) {
 
-      console.log('chal gya Doctor [user]', user);
       getRequestsData();
 
     }
   }, [user]);
   const alterRequest = async (item, index, fType) => {
-    alert('gul');
-    const res = await getData(`${ApiUrls.Friend._alterRequest}?To_ID=${user.Phone}&From_ID=${item.Phone}&Friend_Type=${fType}`);
+
+    const res = await getData(`${ApiUrls.Friend._alterRequest}?Friend_ID=${item.Friend_ID}&Friend_Type=${fType}`);
     if (res.status === 200) {
       let temp = [...allRequests];
       temp.splice(index, 1);
@@ -54,7 +52,6 @@ const RequestScreen = ({ navigation }) => {
         type: actions.SET_All_REQUESTS,
         payload: temp
       });
-      console.log('all friends in req :', [...allFriends, item]);
       if (fType === 'Accepted') {
         dispatch({
           type: actions.SET_All_FRIENDS,
@@ -71,10 +68,10 @@ const RequestScreen = ({ navigation }) => {
         flexDirection: 'row',
         justifyContent: 'flex-end',
       }}>
-        <TouchableOpacity onPress={() => alterRequest(item, index, "Rejected")} style={{ backgroundColor: '#800000', height: 80, width: '50%', justifyContent: 'center', alignItems: 'center' }}>
+        <TouchableOpacity onPress={() => alterRequest(item, index, "Rejected")} style={styles.requestBtn}>
           <Text>Cancel</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => alterRequest(item, index, "Accepted")} style={{ backgroundColor: '#8000ff', height: 80, width: '50%', justifyContent: 'center', alignItems: 'center' }}>
+        <TouchableOpacity onPress={() => alterRequest(item, index, "Accepted")} style={{ backgroundColor: '#8000ff', height: 80, width: '25%', justifyContent: 'center', alignItems: 'center' }}>
           <Text>Confirm</Text>
         </TouchableOpacity>
       </View>
@@ -91,7 +88,7 @@ const RequestScreen = ({ navigation }) => {
           <CustomItem item={item} navigation={navigation} />
         )}
         onEndReachedThreshold={0.5}
-        maxSwipeDistance={wp('100%')}
+        maxSwipeDistance={wp('50%')}
         shouldBounceOnMount={false}
         renderQuickActions={({ index, item }) => quickActions(index, item)}
         ItemSeparatorComponent={() => (
@@ -112,9 +109,15 @@ export default RequestScreen;
 
 const styles = StyleSheet.create({
   btnStyle: {
-
     backgroundColor: 'skyblue',
     borderRadius: 10, width: '40%',
+    alignItems: 'center'
+  },
+  requestBtn: {
+    backgroundColor: '#800000',
+    height: 80,
+    width: '25%',
+    justifyContent: 'center',
     alignItems: 'center'
   }
 });

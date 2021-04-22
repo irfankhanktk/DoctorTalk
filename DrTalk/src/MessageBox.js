@@ -1,5 +1,5 @@
 import React, { createRef, useState } from 'react';
-import { Text, View, StyleSheet, Dimensions, TextInput, Image, TouchableOpacity, FlatList } from 'react-native';
+import { Text, View, StyleSheet, Dimensions, TextInput, Image, TouchableOpacity, FlatList, Alert } from 'react-native';
 import Entypo from 'react-native-vector-icons/Entypo'
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons'
 import Modal from 'react-native-modal'
@@ -8,11 +8,12 @@ import { useStateValue } from './Store/StateProvider';
 import ActionSheet from "react-native-actions-sheet";
 import { actions } from './Store/Reducer';
 import Recorder from './Recorder';
-import { postData, sendMessageToServer } from './API/ApiCalls';
+import { getData, postData, sendMessageToServer } from './API/ApiCalls';
 import { ApiUrls } from './API/ApiUrl';
 import { cos } from 'react-native-reanimated';
-import { launchCamera ,launchImageLibrary} from 'react-native-image-picker';
+import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
+import { insert } from './API/DManager';
 
 const actionSheetRef = createRef();
 
@@ -20,47 +21,89 @@ const MessageBox = ({ route }) => {
     const [txtInputHeight, setTxtInputHeight] = useState(0.05);
     const [msg, setMsg] = useState('');
     const [state, dispatch] = useStateValue();
-    const { token, messages, socket, user } = state;
-
-    const sendImage = async (base64) => {
-        const resp = await postData(ApiUrls.message._PostImageKey, { Image1: base64 });
-        sendMessage(resp.data, 'image', base64);
+    const { token, messages, socket, user, allFriends } = state;
+    const [modalVisible, setModalVisible] = useState(true);
+    const sendImage = async (base64, uri) => {
+        const msgInfo=getMessageInfo(base64,'image');
+        const resp = await postData(ApiUrls.Message._postMessage, msgInfo);
+        console.log('response fro napio: ',resp);
+        if(resp.status==200){
+            alert('sent');
+            console.log('id:::::::',resp.data);
+            sendMessage(resp.data, 'image', uri);
+        }
     }
-    const onCamera =async() => {
+    const onCamera = async () => {
         launchCamera({
             includeBase64: true
         }, (response) => {
-            response && response.base64 && sendImage(response.base64);
+            response && response.base64 && sendImage(response.base64, response.uri);
         });
     }
 
-    const onGallery =async() => {
+    const onGallery = async () => {
         launchImageLibrary({
             includeBase64: true
         }, (response) => {
-            response && response.base64 && sendImage(response.base64);
+            response && response.base64 && sendImage(response.base64, response.uri);
         });
     }
-
-    const sendMessage = async (content, messageType, base64) => {
-        console.log('base64:', base64);
-        const msgInfo = {
-            To_ID: route.params.Phone,
+    const unBlockFriend = async (item) => {
+        const res = await getData(`${ApiUrls.Friend._unBlockFriend}?Friend_ID=${item.Friend_ID}&User_Phone=${user.Phone}`);
+        if (res.status === 200) {
+            const temp = [...allFriends];
+            const index = temp.indexOf(item);
+            item.IsBlock_ByMe = false;
+            temp[index] = item;
+            dispatch({
+                type: actions.SET_All_FRIENDS,
+                payload: temp
+            });
+            // navigation.goBack();
+        }
+    }
+    const getMessageInfo = (content, messageType) => {
+        return ({
+            Friend_ID: route.params.Friend_ID,
             From_ID: user.Phone,
+            To_ID: route.params.Phone,
             Message_Type: messageType,
             Message_Content: content,
-            Message_Time: new Date(),
-            Is_download: false,
-            IsSeen: false,
-        };
-        sendMessageToServer(socket, msgInfo);
-        if (base64) {
-            msgInfo.Message_Content = base64;
+            // Message_time:Date.now(),
+            Is_Download: 0,
+            Is_Seen: 0,
+        });
+    }
+    const sendMessage = async (content, messageType, uri) => {
+
+        if (route.params.IsBlock_ByMe) {
+            Alert.alert(
+                "",
+                "Unblock " + route.params.Name + ' to send message',
+                [
+                    {
+                        text: "Cancel",
+                        onPress: () => console.log("Cancel Pressed"),
+                        style: "cancel"
+                    },
+                    { text: "UnBlock", onPress: () => unBlockFriend(route.params) }
+                ]
+            );
+
+            return;
         }
-      
+        const msgInfo = getMessageInfo(content, messageType);
+        sendMessageToServer(socket, msgInfo);
+        // if (base64) {
+        //     msgInfo.Message_Content = base64;
+        // }
+        if (uri) {
+            content = uri;
+            msgInfo.Message_Content=uri;
+        }
+        insert('Message' + route.params.Friend_ID, 'From_ID,To_ID,Message_Content,Message_Type,Is_Seen,Is_Download', [user.Phone, route.params.Phone, content, messageType, 1,1], '?,?,?,?,?,?');
+
         messages.push(msgInfo);
-      
-        
         dispatch({
             type: actions.SET_MESSAGES,
             payload: messages
@@ -100,10 +143,10 @@ const MessageBox = ({ route }) => {
                     <Text style={{ fontSize: 20, fontWeight: 'bold' }}>Select Photo</Text>
                     <View style={{ height: 100, alignItems: 'center', flexDirection: 'row' }}>
                         <TouchableOpacity onPress={() => onCamera()}>
-                            <Image source={require('./assets/images/gallery.jpg')} style={styles.imgStyle} />
+                            <Image source={require('./assets/images/camera.jpg')} style={styles.imgStyle} />
                         </TouchableOpacity>
                         <TouchableOpacity onPress={() => onGallery()}>
-                            <Image source={require('./assets/images/camera.jpg')} style={styles.imgStyle} />
+                            <Image source={require('./assets/images/gallery.jpg')} style={styles.imgStyle} />
                         </TouchableOpacity>
                     </View>
                 </View>
