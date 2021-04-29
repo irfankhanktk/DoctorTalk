@@ -26,6 +26,7 @@ export const getData = async (relativeUrl) => {
 
 
 export const postData = async (relativeUrl,data) => {
+  console.log('data::::',data);
   const url = getUrl(relativeUrl);
   console.log('url :', url);
   const config = {
@@ -48,4 +49,7 @@ export const postData = async (relativeUrl,data) => {
 
 export const sendMessageToServer=async(socket,msgInfo)=>{
   socket.emit('chat message', msgInfo);
+}
+export const allowCCDToPatient=(socket,patient)=>{
+  socket.emit('allowCCDToPatient',patient);
 }

@@ -1,40 +1,53 @@
 import React, { useEffect, useState } from 'react';
-import { Text, View, StyleSheet, Dimensions, TextInput, Image, TouchableOpacity, FlatList, KeyboardAvoidingView, ScrollView } from 'react-native';
+import { Text, View, StyleSheet, Dimensions, TextInput, Image, TouchableOpacity, FlatList, KeyboardAvoidingView, ScrollView, Alert, Switch } from 'react-native';
 import * as Progress from 'react-native-progress';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import { useStateValue } from '../Store/StateProvider';
 import { actions } from '../Store/Reducer';
 import MessageBox from '../MessageBox';
 import PlayAudio from '../PlayAudio';
-import { getData } from '../API/ApiCalls';
+import { allowCCDToPatient, getData, postData } from '../API/ApiCalls';
 import { ApiUrls } from '../API/ApiUrl';
 import Entypo from 'react-native-vector-icons/Entypo'
 import RNFS from 'react-native-fs'
 import DocumentPicker from 'react-native-document-picker';
 import { WebView } from 'react-native-webview';
 import Menu, { MenuItem, MenuDivider } from 'react-native-material-menu';
-import { create, dropTable, update } from '../API/DManager';
+import { create, deleteRow, dropTable, insert, update } from '../API/DManager';
 import { openDatabase } from 'react-native-sqlite-storage';
+import Slider from 'react-native-slider';
+import Modal from 'react-native-modal';
+import { Picker } from '@react-native-picker/picker';
 var db = openDatabase('Khan.db');
 const image = require('../assets/images/logo.jpg');
 const Chat = ({ navigation, route }) => {
     const [state, dispatch] = useStateValue();
-    const { messages, user, allFriends } = state;
+    const { messages, user, allFriends, socket } = state;
     const [DATA, SETDATA] = useState([]);
     const [isImport, setIsImport] = useState(false);
+    const [isCCD, setIsCCD] = useState(false);
+    const [modalVisible, setModalVisible] = useState(false);
+    const [selectedValue, setSelectedValue] = useState('30%');
+    const [isEnabled, setIsEnabled] = useState(true);
+    const toggleSwitch = () => setIsEnabled(previousState => !previousState);
+    const [h, seth] = useState('50%');
+    const SetHeight = (v) => {
+        seth(v * 100 + '%');
+    }
+
     let { Phone, Name, IsBlock_ByMe } = route.params;
 
     let _menu = null;
 
     //--------------------------------------DB Manager Starts here ---------------------
-    const select = async (tableName) => {
+    const select = async () => {
         db.transaction(function (tx) {
 
             tx.executeSql(
-                'select * from ' + tableName,
+                'select * from Message' + route.params.Friend_ID,
                 [],
                 (tx, results) => {
-                    console.log('select * from ' + tableName, results);
+                    // console.log('select * from ' + tableName, results);
                     const temp = [];
                     for (let i = 0; i < results.rows.length; ++i) {
                         // console.log('row' + i, results.rows.item(i));
@@ -50,6 +63,31 @@ const Chat = ({ navigation, route }) => {
                     // res = error;
                 }
             );
+            tx.executeSql(
+                'select * from CCD WHERE Friend_ID=?',
+                [route.params.Friend_ID],
+                (tx, results) => {
+                    const temp = [];
+                    for (let i = 0; i < results.rows.length; ++i) {
+                        console.log('row' + i, results.rows.item(i));
+                        temp.push(results.rows.item(i).CCD_Title + results.rows.item(i).CCD_Text);
+                    }
+                    if (temp.length > 0) {
+                        setIsImport(true);
+                        setIsCCD(true);
+                    }
+                    SETDATA(temp);
+                    console.log('res: ', temp);
+                    // dispatch({
+                    //     type: actions.SET_MESSAGES,
+                    //     payload: temp
+                    // });
+                },
+                (tx, error) => {
+                    console.log('error:', error);
+                    // res = error;
+                }
+            );
         });
         //    console.log('end res: ',res);
     }
@@ -58,32 +96,56 @@ const Chat = ({ navigation, route }) => {
 
 
 
-    const setHeader = () => {
-        navigation.setOptions({
-            headerTitle:
-                <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around' }}>
-                    {route && route.params.Image ? <Image source={{ uri: `data:image/jpeg;base64,${route.params.Image}` }} style={styles.imgStyle} /> :
-                        <Image source={image} style={styles.imgStyle} />}
-                    <Text style={{ left: 10 }}>{Name}</Text>
-                </TouchableOpacity>,
-            headerRight: () => (
-                <View style={{ right: 20 }}>
-                    <Menu
-                        ref={(ref) => (_menu = ref)}
-                        button={<TouchableOpacity onPress={() => _menu.show()}><Entypo name='dots-three-vertical' size={20} /></TouchableOpacity>}>
-                        {IsBlock_ByMe ? <MenuItem onPress={() => { _menu.hide(), unBlockFriend(route.params) }}>UnBlock</MenuItem>
-                            : <MenuItem onPress={() => blockFriend(route.params)}>Block</MenuItem>
-                        }
-                        <MenuDivider />
-                        <MenuItem onPress={() => { _menu.hide(), navigation.navigate('Profile', route.params) }}>View Profile</MenuItem>
-                        <MenuDivider />
-                       {route.params.Role==='Patient'&&user.Role==='Doctor'&&(<><MenuItem onPress={() => { _menu.hide(), get_file() }}>Import CCD</MenuItem>
-                        <MenuDivider /></>)}
-                        <MenuItem onPress={() => { _menu.hide(), clearConversation() }}>Clear Conversation</MenuItem>
-                    </Menu>
-                </View>
-            ),
-        })
+    // const setHeader = () => {
+    //     navigation.setOptions({
+    //         headerTitle:
+    //             <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around' }}>
+    //                 {route && route.params.Image ? <Image source={{ uri: `data:image/jpeg;base64,${route.params.Image}` }} style={styles.imgStyle} /> :
+    //                     <Image source={image} style={styles.imgStyle} />}
+    //                 <Text style={{ left: 10 }}>{Name}</Text>
+    //             </TouchableOpacity>,
+    //         headerRight: () => (
+    //             <View style={{ flexDirection: 'row', width: '100%' }}>
+    //                 {/* <Switch
+    //                 style={{right:20}}
+    //                     trackColor={{ false: "#767577", true: "#81b0ff" }}
+    //                     thumbColor={isEnabled ? "#f5dd4b" : "#f4f3f4"}
+    //                     ios_backgroundColor="#3e3e3e"
+    //                     onValueChange={toggleSwitch}
+    //                     value={isEnabled}
+    //                 /> */}
+    //                 <View style={{ right: 20 }}>
+    //                     <Menu
+    //                         ref={(ref) => (_menu = ref)}
+    //                         button={<TouchableOpacity onPress={() => _menu.show()}><Entypo name='dots-three-vertical' size={20} /></TouchableOpacity>}>
+    //                         {IsBlock_ByMe ? <MenuItem onPress={() => { _menu.hide(), unBlockFriend(route.params) }}>UnBlock</MenuItem>
+    //                             : <MenuItem onPress={() => { _menu.hide(), blockFriend(route.params) }}>Block</MenuItem>
+    //                         }
+    //                         <MenuDivider />
+    //                         <MenuItem onPress={() => { _menu.hide(), navigation.navigate('Profile', route.params) }}>View Profile</MenuItem>
+    //                         <MenuDivider />
+    //                         {route.params.Role === 'Patient' && user.Role === 'Doctor' && (<><MenuItem onPress={() => { _menu.hide(), get_file() }}>Import CCD</MenuItem>
+    //                             <MenuDivider />
+    //                             <MenuItem onPress={() => { _menu.hide(), allowPatient() }}>Allow Patient</MenuItem>
+    //                             <MenuDivider />
+    //                         </>)}
+    //                         <MenuItem onPress={() => { _menu.hide(), clearConversation() }}>Clear Conversation</MenuItem>
+    //                     </Menu>
+    //                 </View>
+
+    //             </View>
+    //         ),
+    //     })
+    // }
+    const allowPatient = async () => {
+        var ccd = DATA.join('$');
+        // console.log('DATA : ',ccd);
+        const response = await postData(ApiUrls.Message._postCCD, { Patient_ID: route.params.Phone, Doctor_ID: user.Phone, CCD_File: ccd, Allow: true });
+        console.log('Response of ccd:', response);
+        if (response.status === 200) {
+            alert('hahhahaha');
+        }
+        // allowCCDToPatient(socket,route.params);
     }
     const clearConversation = () => {
         dropTable('Message' + route.params.Friend_ID);
@@ -143,28 +205,61 @@ const Chat = ({ navigation, route }) => {
             });
         }
     }
-    const getUnReadMessages=async()=>{
-        const res= await getData(`${ApiUrls.Message._getMessages}?To_ID=${user.Phone}&From_ID=${route.params.Phone}`)
-        if(res.status===200&&res.data.length>0){
-        console.log('res of messages: ',res.data);
-        dispatch({
-          type: actions.SET_MESSAGES,
-          payload: [...messages,...res.data]
-        });
-        const resp= await getData(`${ApiUrls.Message._deleteMessages}?To_ID=${user.Phone}&From_ID=${route.params.Phone}`);
-        if(resp.status===200){
-          console.log('deleted successfully');
+    const getUnReadMessages = async () => {
+        const res = await getData(`${ApiUrls.Message._getMessages}?To_ID=${user.Phone}&From_ID=${route.params.Phone}`)
+        if (res.status === 200 && res.data.length > 0) {
+            console.log('res of messages: ', res.data);
+            dispatch({
+                type: actions.SET_MESSAGES,
+                payload: [...messages, ...res.data]
+            });
+            const resp = await getData(`${ApiUrls.Message._deleteMessages}?To_ID=${user.Phone}&From_ID=${route.params.Phone}`);
+            if (resp.status === 200) {
+                console.log('deleted successfully');
+            }
         }
-      }
+        if (user.Role === 'Patient') {
+            const response = await getData(`${ApiUrls.Message._getCCD}?Patient_ID=${user.Phone}`);
+            if (response.status === 200) {
+                console.log('resp ccd : ', response.data.CCD_File.split('$'));
+                SETDATA(response.data.CCD_File.split('$'));
+            }
+        }
+    }
+    const onDelete = (item) => {
+        console.log('item ::::::', item);
+        deleteRow('Message' + route.params.Friend_ID, 'WHERE Message_ID=?', [item.Message_ID]);
+        const index = messages.indexOf(item);
+        messages.splice(index, 1);
+        // console.log(index);
+        // dispatch({
+        //     type: actions.SET_MESSAGES,
+        //     payload: messages
+        // });
+
+    }
+    const deleteMessage = (item) => {
+        Alert.alert(
+            '',
+            'Are You Sure To Delete Message',
+            [
+                {
+                    text: 'Cancel',
+                    onPress: () => console.log('Cancel Pressed'),
+                    style: 'cancel'
+                },
+                { text: 'Delete', onPress: () => onDelete(item) }
+            ]
+        );
     }
     useEffect(() => {
         if (route) {
-            setHeader();
+            // setHeader();
             create('Message' + route.params.Friend_ID);
-            select('Message' + route.params.Friend_ID);
+            select();
             getUnReadMessages();
         }
-    }, [route])
+    }, [route, allFriends])
     const get_file = async () => {
         try {
             const res = await DocumentPicker.pick({
@@ -174,19 +269,34 @@ const Chat = ({ navigation, route }) => {
                 setIsImport(true)
                 const xml = await RNFS.readFile(res.uri);
                 const sections = xml.split('<section>')
-                const text = [];
+                const temp = [];
+
                 sections.forEach(ele => {
-                    const start = ele.indexOf('<title>');
-                    const end = ele.indexOf('</text>');
+                    var text = '';
+                    var title = '';
+                    var start = ele.indexOf('<title>');
+                    var end = ele.indexOf('</title>');
+
                     if (start > 0 && end > 0) {
-                        const desired = ele && ele.slice(start, end);
-                        var result = desired.split("<title>").join("<h1>");
-                        result = result.split("<td>").join("<td style='padding:5px;color:red;font-size:30px;'>");
-                        // console.log('res: ', result);
-                        text.push(result + '</text>');
+                        title = ele?.slice(start, end) + '</h1>';
+                        title = title?.split("title").join("h1");
                     }
+                    start = ele?.indexOf('<text>');
+                    end = ele?.indexOf('</text>');
+
+                    if (start > 0 && end > 0) {
+                        text = ele?.slice(start, end) + '</text>';
+                        text = text?.split('border="1"').join("").split("<tr").join('<tr align="center"');
+
+                    }
+                    if (text != '') {
+                        temp.push(title + text);
+                        insert('CCD', 'Friend_ID,CCD_Title,CCD_Text', [route.params.Friend_ID, title, text], '?,?,?');
+                    }
+
+
                 });
-                SETDATA(text);
+                SETDATA(temp);
                 // RNFS.writeFile(RNFS.DocumentDirectoryPath+'/irf.txt',str, 'utf8')
                 //     .then((success) => {
                 //         console.log('FILE WRITTEN!');
@@ -219,28 +329,76 @@ const Chat = ({ navigation, route }) => {
             // behavior={'padding'}
             style={styles.container}
         >
-         
-            {/* <TouchableOpacity style={{ padding: 5, backgroundColor: 'blue', justifyContent: 'center', alignItems: 'center' }} onPress={() => select('Message' + route.params.Friend_ID)}>
-                <Text>show</Text>
-            </TouchableOpacity> */}
+            <View style={{width:'100%',height:'5%',backgroundColor:'blue',justifyContent:'space-around',justifyContent:'space-around'}}>
+            <View style={{ flexDirection: 'row',alignItems:'center',justifyContent:'center'}}>
+                   { <Switch
+                    style={{right:20}}
+                        trackColor={{ false: "#767577", true: "#81b0ff" }}
+                        thumbColor={isEnabled ? "#f5dd4b" : "#f4f3f4"}
+                        ios_backgroundColor="#3e3e3e"
+                        onValueChange={toggleSwitch}
+                        value={isEnabled}
+                    /> } 
+                    <View style={{ right: 20 }}>
+                        <Menu
+                            ref={(ref) => (_menu = ref)}
+                            button={<TouchableOpacity onPress={() => _menu.show()}><Entypo name='dots-three-vertical' size={20} /></TouchableOpacity>}>
+                            {IsBlock_ByMe ? <MenuItem onPress={() => { _menu.hide(), unBlockFriend(route.params) }}>UnBlock</MenuItem>
+                                : <MenuItem onPress={() => { _menu.hide(), blockFriend(route.params) }}>Block</MenuItem>
+                            }
+                            <MenuDivider />
+                            <MenuItem onPress={() => { _menu.hide(), navigation.navigate('Profile', route.params) }}>View Profile</MenuItem>
+                            <MenuDivider />
+                            {route.params.Role === 'Patient' && user.Role === 'Doctor' && (<><MenuItem onPress={() => { _menu.hide(), get_file() }}>Import CCD</MenuItem>
+                                <MenuDivider />
+                                <MenuItem onPress={() => { _menu.hide(), allowPatient() }}>Allow Patient</MenuItem>
+                                <MenuDivider />
+                            </>)}
+                            <MenuItem onPress={() => { _menu.hide(), clearConversation() }}>Clear Conversation</MenuItem>
+                        </Menu>
+                    </View>
+
+                </View>
+            </View>
+            {/* <Slider
+
+                minimumValue={0}
+                value={0.5}
+                onValueChange={(v) => SetHeight(v)} /> */}
+            {!isImport && isCCD && <TouchableOpacity style={{ padding: 5, backgroundColor: 'blue', justifyContent: 'center', alignItems: 'center' }} onPress={() => setIsImport(true)}>
+                <Text>show CCD</Text>
+            </TouchableOpacity>}
             {isImport &&
                 <>
                     <TouchableOpacity style={{ padding: 5, backgroundColor: 'blue', justifyContent: 'center', alignItems: 'center' }} onPress={() => setIsImport(false)}>
-                        <Text>Hide</Text>
+                        <Text>Hide CCD</Text>
                     </TouchableOpacity>
-                    <View style={styles.ccdStyle}>
+                    <View style={[styles.ccdStyle, { height: selectedValue }]}>
                         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{
                             flexDirection: 'row',
                             paddingHorizontal: 10,
                         }}>
                             {DATA &&
                                 DATA.map((item, index) => (
-                                    <WebView originWhitelist={['*']}
-                                        source={{ html: item }}
+                                    <WebView key={index} originWhitelist={['*']}
+                                        source={{ html: item.replace('<text', '<text height=' + h + ' style="font-size:40"').replace('<table', '<table height=' + h + ' style="font-size:30"') }}
+                                        // source={{ html: item.replace('<table', '<table height='+h+' style="font-size:20"').split('border="1"').join("")}}
                                         style={{ width: 350, marginHorizontal: 30 }}
                                     />
                                 ))}
                         </ScrollView>
+                        <Picker
+                            style={{ width: '40%' }}
+                            selectedValue={selectedValue}
+                            onValueChange={(itemValue, itemIndex) =>
+                                setSelectedValue(itemValue)
+                            }>
+                            <Picker.Item label="30%" value="30%" />
+                            <Picker.Item label="40%" value="40%" />
+                            <Picker.Item label="50%" value="50%" />
+                            <Picker.Item label="60%" value="60%" />
+                            <Picker.Item label="70%" value="70%" />
+                        </Picker>
                     </View>
                 </>
             }
@@ -287,7 +445,7 @@ const Chat = ({ navigation, route }) => {
                                 }
                             </View>
                             : item.To_ID === Phone &&
-                            <View style={{ marginVertical: 5, right: 0, alignItems: 'flex-end', }}>
+                            <TouchableOpacity onLongPress={() => deleteMessage(item)} style={{ marginVertical: 5, right: 0, alignItems: 'flex-end', }}>
                                 {item.Message_Type === 'text' ?
                                     <View style={{ backgroundColor: 'skyblue', borderRadius: 5, width: '30%' }}>
                                         <Text style={{ fontSize: 20 }}>{item.Message_Content}</Text>
@@ -300,15 +458,15 @@ const Chat = ({ navigation, route }) => {
                                         </View>
                                         :
                                         <View style={{ borderRadius: 5 }}>
-                                            <PlayAudio item={item.Message_Content} />
+                                            <PlayAudio item={item} />
                                             <Text style={{ alignSelf: 'flex-end' }}>5:46</Text>
                                         </View>
                                 }
-                            </View>
+                            </TouchableOpacity>
                         }
                         </View>
                     )}
-                    keyExtractor={(item, index) => index + ''}
+                    keyExtractor={(item, index) => index + 'key'}
                 />
             </View>
             <View>
@@ -317,6 +475,22 @@ const Chat = ({ navigation, route }) => {
             {/* <View style={styles.menuStyle}>
             
             </View> */}
+            {/* <Modal
+                isVisible={modalVisible}
+                animationType="slide"
+                transparent={true}
+                onRequestClose={() => {
+                    Alert.alert("Modal has been closed.");
+                    setModalVisible(!modalVisible);
+                }}
+                onBackdropPress={() => setModalVisible(!modalVisible)}
+            >
+                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                    <View style={styles.modalView}>
+                        <Text>I am the modal content!</Text>
+                    </View>
+                </View>
+            </Modal> */}
         </View>
     );
 };
@@ -338,8 +512,7 @@ const styles = StyleSheet.create({
     },
     ccdStyle: {
         width: '100%',
-        flex: 3,
-        backgroundColor: 'black'
+        // backgroundColor: 'black'
     },
     messagesStyle: {
         flex: 10,
@@ -353,7 +526,22 @@ const styles = StyleSheet.create({
         position: 'absolute',
         top: 0,
         right: 0,
-    }
+    },
+    modalView: {
+        margin: 20,
+        backgroundColor: "white",
+        borderRadius: 20,
+        padding: 35,
+        alignItems: "center",
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 2
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5
+    },
 
 });
 export default Chat;

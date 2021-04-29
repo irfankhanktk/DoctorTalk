@@ -10,7 +10,7 @@ import CustomItem from '../CustomScreens/CustomItem';
 import CustomHeader from '../CustomHeader';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { CustomeSearchBar } from '../CustomScreens/CustomSearchBar';
-import { insert } from '../API/DManager';
+import { create, create_CCD_Table, insert } from '../API/DManager';
 import { openDatabase } from 'react-native-sqlite-storage';
 var db = openDatabase('Khan.db');
 const image = require('../assets/images/logo.jpg');
@@ -22,11 +22,15 @@ const MyFriends = ({ navigation }) => {
   const [filteredFriends, setFilteredFriends] = useState([]);
   const getFriendsData = async () => {
     const res_Friends = await getData(`${ApiUrls.Friend._getMyFriends}?Phone=${user.Phone}`);
+    console.log('frnd: ',res_Friends);
     if (res_Friends.status === 200) {
       dispatch({
         type: actions.SET_All_FRIENDS,
         payload: res_Friends.data
       });
+      if( res_Friends.data.length>0){
+        create_CCD_Table();
+      }
     }
     else {
       alert('Check Your internet Connections');
@@ -121,7 +125,7 @@ const MyFriends = ({ navigation }) => {
           <CustomItem item={item} screen={'ChatActivity'} navigation={navigation} />
         )}
         ItemSeparatorComponent={() => (
-          <View style={{ height: 1, }} />
+          <View style={{ height: 1, }}/>
         )}
       />
     </>

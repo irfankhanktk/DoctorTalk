@@ -25,7 +25,7 @@ const Stack = createStackNavigator();
     return (
       <Stack.Navigator>
         <Stack.Screen name={'ChatScreen'} component={MyFriends} options={{headerShown:false}}/>
-        <Stack.Screen name={'ChatActivity'} component={Chat}/>
+        <Stack.Screen name={'ChatActivity'} component={Chat} options={{headerShown:false}}/>
         <Stack.Screen name={'Profile'} component={Profile}/>
       </Stack.Navigator>
     );

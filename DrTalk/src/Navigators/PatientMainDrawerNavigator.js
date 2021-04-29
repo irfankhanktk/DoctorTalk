@@ -4,6 +4,8 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import FontAwesome from 'react-native-vector-icons/FontAwesome'
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
+import Entypo from "react-native-vector-icons/Entypo";
+
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import Feather from "react-native-vector-icons/Feather";
 import Chat from '../User/Chat';
@@ -26,7 +28,7 @@ const Tab = createBottomTabNavigator();
         }} />
         <Tab.Screen name="Users" component={AllUser} options={{
           tabBarIcon: ({ focused, color, size }) => (
-            <MaterialCommunityIcons name='users' size={size} color={color} />
+            <Entypo name='users' size={size} color={color} />
           )
         }} />
         <Tab.Screen name="Request" component={RequestScreen} options={{

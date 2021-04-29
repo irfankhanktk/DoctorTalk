@@ -28,23 +28,23 @@ const PlayAudio = ({item}) => {
     const [currentPositionSec, setCurrentPositionSec] = useState();
 
     const [startIcon, setStartIcon] = useState(false);
-    const [voiceList, setVoiceList] = useState([]);
+    // const [voiceList, setVoiceList] = useState([]);
     audioRecorderPlayer.setSubscriptionDuration(0.09); // optional. Default is 0.1
-    async function getUriToBase64(uri) {
-        // get a list of files and directories in the main bundle
-        RNFS.readDir('file:///sdcard') // On Android, use "RNFS.DocumentDirectoryPath" (MainBundlePath is not defined)
-            .then((result) => {
+    // async function getUriToBase64(uri) {
+    //     // get a list of files and directories in the main bundle
+    //     RNFS.readDir('file:///sdcard') // On Android, use "RNFS.DocumentDirectoryPath" (MainBundlePath is not defined)
+    //         .then((result) => {
 
-                const temp = result.filter(item => {
-                    return item.name.slice(-3) === 'mp4';
-                });
-                setVoiceList(temp);
-                console.log(temp);
-            })
-    }
-    useEffect(() => {
-        getUriToBase64('file:///sdcard/hello.mp4');
-    }, [])
+    //             const temp = result.filter(item => {
+    //                 return item.name.slice(-3) === 'mp4';
+    //             });
+    //             setVoiceList(temp);
+    //             console.log(temp);
+    //         })
+    // }
+    // useEffect(() => {
+    //     getUriToBase64('file:///sdcard/hello.mp4');
+    // }, [])
     const onStartRecord = async () => {
         await onSetStartIcon();
         if (Platform.OS === 'android') {
@@ -124,21 +124,21 @@ const PlayAudio = ({item}) => {
         console.log('onStop record result : ', result);
         // console.log('on stop base64 ', getUriToBase64(result));
     };
-    const handlePlayPause = (item) => {
-        const newData = voiceList.map(ele => {
-            if (ele.name === item.name) {
-                return {
-                    ...ele,
-                    selected: true,
-                };
-            }
-            return {
-                ...ele,
-                selected: false,
-            };
-        });
-        setVoiceList(newData);
-    }
+    // const handlePlayPause = (item) => {
+    //     const newData = voiceList.map(ele => {
+    //         if (ele.name === item.name) {
+    //             return {
+    //                 ...ele,
+    //                 selected: true,
+    //             };
+    //         }
+    //         return {
+    //             ...ele,
+    //             selected: false,
+    //         };
+    //     });
+    //     setVoiceList(newData);
+    // }
     const onStartPlay = async (item) => {
         if (Platform.OS === 'android') {
             try {
@@ -182,13 +182,13 @@ const PlayAudio = ({item}) => {
                 return;
             }
         }
-        handlePlayPause(item);
+        // handlePlayPause(item);
 
         setIsPlay(!isPlay);
         console.log('onStartPlay');
         const path = Platform.select({
             ios: 'hello.m4a',
-             android:item, // should give extra dir name in android. Won't grant permission to the first level of dir.
+             android:item.Message_Content, // should give extra dir name in android. Won't grant permission to the first level of dir.
            
             // android: `data:audio/mp3;base64,${item}`, // should give extra dir name in android. Won't grant permission to the first level of dir.
         });
@@ -217,7 +217,7 @@ const PlayAudio = ({item}) => {
     };
 
     const onPausePlay = async (item) => {
-        handlePlayPause(item);
+        // handlePlayPause(item);
         setIsPlay(!isPlay);
         const res = await audioRecorderPlayer.pausePlayer();
         console.log('res onPausePlay', res);
@@ -248,7 +248,7 @@ const PlayAudio = ({item}) => {
             </TouchableOpacity>
         }
         <View style={{ justifyContent: 'center',}}>
-            <Progress.Bar progress={progressValue} width={100} />
+            <Progress.Bar progress={isPlay?0:progressValue} width={100} />
         </View>
     </View>
     );

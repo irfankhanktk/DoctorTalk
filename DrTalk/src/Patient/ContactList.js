@@ -1,20 +1,24 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useEffect } from 'react';
-import { View, Image, Text, TouchableOpacity, Share, PermissionsAndroid } from 'react-native';
+import { View, Image, Text, TouchableOpacity, Share, PermissionsAndroid,CheckBox} from 'react-native';
 import SwipeableFlatList from 'react-native-swipeable-list';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
-
-// import { useState } from 'react/cjs/react.development';
-// import { getData } from '../API/ApiCalls';
-// import { ApiUrls } from '../API/ApiUrl';
-// import {useStateValue} from '../Store/StateProvider';
 const image = require('../assets/images/logo.jpg');
 import Contacts from 'react-native-contacts'
-const Invite = ({ navigation }) => {
-  // const [state, dispatch] = useStateValue();
-  // const {clients,token}=state;
-  // const [allPatients,setAllPatients]=useState([]);
+import CustomHeader from '../CustomHeader';
+import { ApiUrls } from '../API/ApiUrl';
+import { useStateValue } from '../Store/StateProvider';
+import { getData } from '../API/ApiCalls';
+import { CustomeSearchBar } from '../CustomScreens/CustomSearchBar';
+const Invite = (props) => {
+  const [state, dispatch] = useStateValue();
+  const {user}=state;
+  const {Phone}=user;
   const [mblContacts, setMblContacts] = React.useState([]);
+  const [searchText, setSearchText] = useState('');
+  const [filteredMbl, setFilteredMbl] = useState([]);
+  const [isSelected, setSelection] = useState(false);
+  console.log('props : ',props);
 
   const addContact = () => {
     PermissionsAndroid.requestMultiple([
@@ -26,13 +30,13 @@ const Invite = ({ navigation }) => {
       setMblContacts(contacts);
     }))
   }
-  const onInvite = async (pPhone) => {
-
-    // const res=await getData(`${ApiUrls.patient.invitation._invitePatient}?Dphone=${JSON.parse(token).contact}&Pphone=${pPhone}`);
-    // if(res.status===200 && res.data)
-    // {
-      //  alert('Invited successfully');
-    // }
+  const onInvite = async (To_ID) => {
+  //  console.log( Math.random()*10000);
+    const res=await getData(`${ApiUrls.User._invite}?From_ID=${Phone}&To_ID=${To_ID}`);
+    if(res.status===200 && res.data)
+    {
+       alert('Invited successfully');
+    }
 
       try {
         const result = await Share.share({
@@ -73,23 +77,43 @@ const Invite = ({ navigation }) => {
         flexDirection: 'row',
         justifyContent: 'flex-end',
       }}>
-
         <TouchableOpacity onPress={ ()=>onInvite(item.phoneNumbers[0].number)} style={{ backgroundColor: '#8000ff', height: 80, width: wp('25%'), justifyContent: 'center', alignItems: 'center' }}>
           <Text>Invite</Text>
         </TouchableOpacity>
       </View>
     );
   }
-
+  const searchContacts = (text) => {
+    setSearchText(text);
+    if (text.length > 0) {
+      const temp = [...mblContacts];
+      text = text.toLowerCase();
+      const filteredData = temp.filter(item => {
+        const name =item.displayName.toLowerCase();
+        if (name.indexOf(text) >= 0) {
+          return item;
+        }
+      });
+      setFilteredMbl(filteredData);
+    }
+  }
   return (
     <View>
+      <CustomHeader navigation={props.navigation}/>
+      <CustomeSearchBar onChangeText={(t) => searchContacts(t)} value={searchText} />
       <SwipeableFlatList
-        data={mblContacts}
+        data={searchText.length > 0 ? filteredMbl : mblContacts}
         // keyExtractor={item => item.key}
         keyExtractor={(item, index) => index + 'key'}
         keyExtractor={item => item.displayName}
         renderItem={({ item }) => (
-          <TouchableOpacity style={{  width: '100%',
+          <View style={{flexDirection:'row',alignItems:'center'}}>
+           <CheckBox
+          value={isSelected}
+          onValueChange={setSelection}
+          style={styles.checkbox}
+        />
+          <TouchableOpacity style={{  width: '90%',
           height: 80, 
           backgroundColor:'#d0d0ff',
           flexDirection: 'row',
@@ -97,6 +121,7 @@ const Invite = ({ navigation }) => {
             <Image style={{ left: 10, height: 50, width: 50, borderRadius: 50 }} source={image} />
             <Text style={{ left: 20 }}>{item.displayName}{item.phoneNumbers[0].number}</Text>
           </TouchableOpacity>
+          </View>
         )}
 
         // renderRight={({ item }) => (

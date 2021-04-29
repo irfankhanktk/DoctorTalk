@@ -11,8 +11,10 @@
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^1.14.1",
+    "@react-native-community/checkbox": "^0.5.7",
     "@react-native-community/datetimepicker": "^3.4.3",
     "@react-native-community/masked-view": "^0.1.10",
+    "@react-native-picker/picker": "^1.15.0",
     "@react-navigation/bottom-tabs": "^5.11.8",
     "@react-navigation/drawer": "^5.12.4",
     "@react-navigation/material-top-tabs": "^5.3.14",
@@ -38,6 +40,7 @@
     "react-native-responsive-screen": "^1.4.2",
     "react-native-safe-area-context": "^3.2.0",
     "react-native-screens": "^2.18.1",
+    "react-native-slider": "^0.11.0",
     "react-native-sqlite-storage": "^5.0.0",
     "react-native-swipeable-list": "^0.1.0",
     "react-native-tab-view": "^2.16.0",
@@ -45,6 +48,7 @@
     "react-native-webview": "^11.3.2",
     "react-native-xml2js": "^1.0.3",
     "react-xml-parser": "^1.1.8",
+    "rn-vertical-slider": "^2.0.2",
     "socket.io-client": "^4.0.0",
     "xml-js": "^1.6.11"
   },
