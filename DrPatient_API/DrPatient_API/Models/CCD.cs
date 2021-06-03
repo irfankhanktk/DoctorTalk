@@ -12,14 +12,12 @@ namespace DrPatient_API.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class Message
+    public partial class CCD
     {
-        public int Message_ID { get; set; }
-        public string From_ID { get; set; }
-        public string To_ID { get; set; }
-        public string Message_Content { get; set; }
-        public string Message_Type { get; set; }
-        public Nullable<bool> Is_Seen { get; set; }
-        public Nullable<System.DateTime> createdDate { get; set; }
+        public int CCD_ID { get; set; }
+        public string Patient_ID { get; set; }
+        public string Doctor_ID { get; set; }
+        public string CCD_File { get; set; }
+        public Nullable<bool> Allow { get; set; }
     }
 }

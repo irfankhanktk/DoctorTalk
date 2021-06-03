@@ -19,16 +19,6 @@
     <Property Name="IsBlock_From" Type="Boolean" />
     <Property Name="Friend_Type" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
   </EntityType>
-  <EntityType Name="Invitation">
-    <Key>
-      <PropertyRef Name="Invitaion_id" />
-    </Key>
-    <Property Name="Invitaion_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-    <Property Name="FriendA_phone" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-    <Property Name="FriendB_phone" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-    <Property Name="Invitation_code" Type="String" MaxLength="4" FixedLength="false" Unicode="false" />
-    <Property Name="Invitation_type" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
-  </EntityType>
   <EntityType Name="Message">
     <Key>
       <PropertyRef Name="Message_ID" />
@@ -39,6 +29,7 @@
     <Property Name="Message_Content" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
     <Property Name="Message_Type" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
     <Property Name="Is_Seen" Type="Boolean" />
+    <Property Name="createdDate" Type="DateTime" Precision="3" />
   </EntityType>
   <EntityType Name="User">
     <Key>
@@ -54,8 +45,29 @@
   <EntityContainer Name="DoctorPatientEntities" annotation:LazyLoadingEnabled="true">
     <EntitySet Name="BlockedUsers" EntityType="Self.BlockedUser" />
     <EntitySet Name="Friends" EntityType="Self.Friend" />
-    <EntitySet Name="Invitations" EntityType="Self.Invitation" />
     <EntitySet Name="Messages" EntityType="Self.Message" />
     <EntitySet Name="Users" EntityType="Self.User" />
+    <EntitySet Name="CCDs" EntityType="DoctorPatientModel.CCD" />
+    <EntitySet Name="Invitations" EntityType="DoctorPatientModel.Invitation" />
   </EntityContainer>
+  <EntityType Name="CCD">
+    <Key>
+      <PropertyRef Name="CCD_ID" />
+    </Key>
+    <Property Name="CCD_ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="Patient_ID" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
+    <Property Name="Doctor_ID" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
+    <Property Name="CCD_File" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+    <Property Name="Allow" Type="Boolean" />
+  </EntityType>
+  <EntityType Name="Invitation">
+    <Key>
+      <PropertyRef Name="Invitaion_ID" />
+    </Key>
+    <Property Name="Invitaion_ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="From_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+    <Property Name="To_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+    <Property Name="Invitation_Code" Type="Int32" />
+    <Property Name="Invitation_Type" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+  </EntityType>
 </Schema>

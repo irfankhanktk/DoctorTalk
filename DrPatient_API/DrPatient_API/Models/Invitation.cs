@@ -14,10 +14,10 @@ namespace DrPatient_API.Models
     
     public partial class Invitation
     {
-        public int Invitaion_id { get; set; }
-        public string FriendA_phone { get; set; }
-        public string FriendB_phone { get; set; }
-        public string Invitation_code { get; set; }
-        public string Invitation_type { get; set; }
+        public int Invitaion_ID { get; set; }
+        public string From_ID { get; set; }
+        public string To_ID { get; set; }
+        public Nullable<int> Invitation_Code { get; set; }
+        public string Invitation_Type { get; set; }
     }
 }

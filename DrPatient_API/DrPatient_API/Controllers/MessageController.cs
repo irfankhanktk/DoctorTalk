@@ -16,6 +16,33 @@ namespace DrPatient_API.Controllers
     {
         private DoctorPatientEntities db = new DoctorPatientEntities();
 
+        [HttpPost]
+        public IHttpActionResult PostCCD(CCD ccd)
+        {
+           db.CCDs.Add(ccd);
+            try
+            {
+                db.SaveChanges();
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+
+            return Ok();
+        }
+        [HttpGet]
+        public IHttpActionResult GetCCD(string Patient_ID)
+        {
+
+            var cCD = db.CCDs.Where(c=>c.Patient_ID==Patient_ID).FirstOrDefault();
+            if (cCD == null)
+            {
+                return BadRequest();
+            }
+            return Ok(cCD);
+        }
         [HttpGet]
         public IHttpActionResult GetMessage(int Message_ID)
         {

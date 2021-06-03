@@ -8,6 +8,16 @@
     <Property Name="BlockByPhone" Type="varchar" MaxLength="30" />
     <Property Name="BlockUserPhone" Type="varchar" MaxLength="30" />
   </EntityType>
+  <EntityType Name="CCD">
+    <Key>
+      <PropertyRef Name="CCD_ID" />
+    </Key>
+    <Property Name="CCD_ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Patient_ID" Type="nvarchar" MaxLength="20" />
+    <Property Name="Doctor_ID" Type="nvarchar" MaxLength="20" />
+    <Property Name="CCD_File" Type="nvarchar(max)" />
+    <Property Name="Allow" Type="bit" />
+  </EntityType>
   <EntityType Name="Friend">
     <Key>
       <PropertyRef Name="Friend_ID" />
@@ -21,13 +31,13 @@
   </EntityType>
   <EntityType Name="Invitation">
     <Key>
-      <PropertyRef Name="Invitaion_id" />
+      <PropertyRef Name="Invitaion_ID" />
     </Key>
-    <Property Name="Invitaion_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-    <Property Name="FriendA_phone" Type="varchar" MaxLength="30" />
-    <Property Name="FriendB_phone" Type="varchar" MaxLength="30" />
-    <Property Name="Invitation_code" Type="varchar" MaxLength="4" />
-    <Property Name="Invitation_type" Type="varchar" MaxLength="20" />
+    <Property Name="Invitaion_ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="From_ID" Type="varchar" MaxLength="30" />
+    <Property Name="To_ID" Type="varchar" MaxLength="30" />
+    <Property Name="Invitation_Code" Type="int" />
+    <Property Name="Invitation_Type" Type="varchar" MaxLength="20" />
   </EntityType>
   <EntityType Name="Message">
     <Key>
@@ -39,6 +49,7 @@
     <Property Name="Message_Content" Type="nvarchar(max)" />
     <Property Name="Is_Seen" Type="bit" />
     <Property Name="Message_Type" Type="nvarchar" MaxLength="50" Nullable="false" />
+    <Property Name="createdDate" Type="datetime" />
   </EntityType>
   <EntityType Name="User">
     <Key>
@@ -53,6 +64,7 @@
   </EntityType>
   <EntityContainer Name="DoctorPatientModelStoreContainer">
     <EntitySet Name="BlockedUser" EntityType="Self.BlockedUser" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="CCD" EntityType="Self.CCD" Schema="dbo" store:Type="Tables" />
     <EntitySet Name="Friend" EntityType="Self.Friend" Schema="dbo" store:Type="Tables" />
     <EntitySet Name="Invitation" EntityType="Self.Invitation" Schema="dbo" store:Type="Tables" />
     <EntitySet Name="Message" EntityType="Self.Message" Schema="dbo" store:Type="Tables" />

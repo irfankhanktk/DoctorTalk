@@ -13,6 +13,16 @@
           <Property Name="BlockByPhone" Type="varchar" MaxLength="30" />
           <Property Name="BlockUserPhone" Type="varchar" MaxLength="30" />
         </EntityType>
+        <EntityType Name="CCD">
+          <Key>
+            <PropertyRef Name="CCD_ID" />
+          </Key>
+          <Property Name="CCD_ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Patient_ID" Type="nvarchar" MaxLength="20" />
+          <Property Name="Doctor_ID" Type="nvarchar" MaxLength="20" />
+          <Property Name="CCD_File" Type="nvarchar(max)" />
+          <Property Name="Allow" Type="bit" />
+        </EntityType>
         <EntityType Name="Friend">
           <Key>
             <PropertyRef Name="Friend_ID" />
@@ -26,13 +36,13 @@
         </EntityType>
         <EntityType Name="Invitation">
           <Key>
-            <PropertyRef Name="Invitaion_id" />
+            <PropertyRef Name="Invitaion_ID" />
           </Key>
-          <Property Name="Invitaion_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="FriendA_phone" Type="varchar" MaxLength="30" />
-          <Property Name="FriendB_phone" Type="varchar" MaxLength="30" />
-          <Property Name="Invitation_code" Type="varchar" MaxLength="4" />
-          <Property Name="Invitation_type" Type="varchar" MaxLength="20" />
+          <Property Name="Invitaion_ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="From_ID" Type="varchar" MaxLength="30" />
+          <Property Name="To_ID" Type="varchar" MaxLength="30" />
+          <Property Name="Invitation_Code" Type="int" />
+          <Property Name="Invitation_Type" Type="varchar" MaxLength="20" />
         </EntityType>
         <EntityType Name="Message">
           <Key>
@@ -44,6 +54,7 @@
           <Property Name="Message_Content" Type="nvarchar(max)" />
           <Property Name="Is_Seen" Type="bit" />
           <Property Name="Message_Type" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="createdDate" Type="datetime" />
         </EntityType>
         <EntityType Name="User">
           <Key>
@@ -58,6 +69,7 @@
         </EntityType>
         <EntityContainer Name="DoctorPatientModelStoreContainer">
           <EntitySet Name="BlockedUser" EntityType="Self.BlockedUser" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="CCD" EntityType="Self.CCD" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Friend" EntityType="Self.Friend" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Invitation" EntityType="Self.Invitation" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Message" EntityType="Self.Message" Schema="dbo" store:Type="Tables" />
@@ -86,16 +98,6 @@
           <Property Name="IsBlock_From" Type="Boolean" />
           <Property Name="Friend_Type" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
         </EntityType>
-        <EntityType Name="Invitation">
-          <Key>
-            <PropertyRef Name="Invitaion_id" />
-          </Key>
-          <Property Name="Invitaion_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="FriendA_phone" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="FriendB_phone" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="Invitation_code" Type="String" MaxLength="4" FixedLength="false" Unicode="false" />
-          <Property Name="Invitation_type" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
-        </EntityType>
         <EntityType Name="Message">
           <Key>
             <PropertyRef Name="Message_ID" />
@@ -106,6 +108,7 @@
           <Property Name="Message_Content" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="Message_Type" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="Is_Seen" Type="Boolean" />
+          <Property Name="createdDate" Type="DateTime" Precision="3" />
         </EntityType>
         <EntityType Name="User">
           <Key>
@@ -121,10 +124,31 @@
         <EntityContainer Name="DoctorPatientEntities" annotation:LazyLoadingEnabled="true">
           <EntitySet Name="BlockedUsers" EntityType="Self.BlockedUser" />
           <EntitySet Name="Friends" EntityType="Self.Friend" />
-          <EntitySet Name="Invitations" EntityType="Self.Invitation" />
           <EntitySet Name="Messages" EntityType="Self.Message" />
           <EntitySet Name="Users" EntityType="Self.User" />
+          <EntitySet Name="CCDs" EntityType="DoctorPatientModel.CCD" />
+          <EntitySet Name="Invitations" EntityType="DoctorPatientModel.Invitation" />
         </EntityContainer>
+        <EntityType Name="CCD">
+          <Key>
+            <PropertyRef Name="CCD_ID" />
+          </Key>
+          <Property Name="CCD_ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Patient_ID" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
+          <Property Name="Doctor_ID" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
+          <Property Name="CCD_File" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Allow" Type="Boolean" />
+        </EntityType>
+        <EntityType Name="Invitation">
+          <Key>
+            <PropertyRef Name="Invitaion_ID" />
+          </Key>
+          <Property Name="Invitaion_ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="From_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="To_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="Invitation_Code" Type="Int32" />
+          <Property Name="Invitation_Type" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+        </EntityType>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -152,20 +176,10 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="Invitations">
-            <EntityTypeMapping TypeName="DoctorPatientModel.Invitation">
-              <MappingFragment StoreEntitySet="Invitation">
-                <ScalarProperty Name="Invitaion_id" ColumnName="Invitaion_id" />
-                <ScalarProperty Name="FriendA_phone" ColumnName="FriendA_phone" />
-                <ScalarProperty Name="FriendB_phone" ColumnName="FriendB_phone" />
-                <ScalarProperty Name="Invitation_code" ColumnName="Invitation_code" />
-                <ScalarProperty Name="Invitation_type" ColumnName="Invitation_type" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="Messages">
             <EntityTypeMapping TypeName="DoctorPatientModel.Message">
               <MappingFragment StoreEntitySet="Message">
+                <ScalarProperty Name="createdDate" ColumnName="createdDate" />
                 <ScalarProperty Name="Is_Seen" ColumnName="Is_Seen" />
                 <ScalarProperty Name="Message_ID" ColumnName="Message_ID" />
                 <ScalarProperty Name="From_ID" ColumnName="From_ID" />
@@ -184,6 +198,28 @@
                 <ScalarProperty Name="Role" ColumnName="Role" />
                 <ScalarProperty Name="IsApproved" ColumnName="IsApproved" />
                 <ScalarProperty Name="IsRejected" ColumnName="IsRejected" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="CCDs">
+            <EntityTypeMapping TypeName="DoctorPatientModel.CCD">
+              <MappingFragment StoreEntitySet="CCD">
+                <ScalarProperty Name="Allow" ColumnName="Allow" />
+                <ScalarProperty Name="CCD_File" ColumnName="CCD_File" />
+                <ScalarProperty Name="Doctor_ID" ColumnName="Doctor_ID" />
+                <ScalarProperty Name="Patient_ID" ColumnName="Patient_ID" />
+                <ScalarProperty Name="CCD_ID" ColumnName="CCD_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Invitations">
+            <EntityTypeMapping TypeName="DoctorPatientModel.Invitation">
+              <MappingFragment StoreEntitySet="Invitation">
+                <ScalarProperty Name="Invitation_Type" ColumnName="Invitation_Type" />
+                <ScalarProperty Name="Invitation_Code" ColumnName="Invitation_Code" />
+                <ScalarProperty Name="To_ID" ColumnName="To_ID" />
+                <ScalarProperty Name="From_ID" ColumnName="From_ID" />
+                <ScalarProperty Name="Invitaion_ID" ColumnName="Invitaion_ID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

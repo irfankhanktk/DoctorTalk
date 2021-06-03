@@ -179,6 +179,9 @@
     <Compile Include="Models\BlockedUser.cs">
       <DependentUpon>DrPatient.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\CCD.cs">
+      <DependentUpon>DrPatient.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\DrPatient.Context.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

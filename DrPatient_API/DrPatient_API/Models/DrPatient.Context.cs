@@ -27,8 +27,9 @@ namespace DrPatient_API.Models
     
         public virtual DbSet<BlockedUser> BlockedUsers { get; set; }
         public virtual DbSet<Friend> Friends { get; set; }
-        public virtual DbSet<Invitation> Invitations { get; set; }
         public virtual DbSet<Message> Messages { get; set; }
         public virtual DbSet<User> Users { get; set; }
+        public virtual DbSet<CCD> CCDs { get; set; }
+        public virtual DbSet<Invitation> Invitations { get; set; }
     }
 }

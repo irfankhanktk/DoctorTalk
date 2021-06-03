@@ -22,20 +22,10 @@
         </MappingFragment>
       </EntityTypeMapping>
     </EntitySetMapping>
-    <EntitySetMapping Name="Invitations">
-      <EntityTypeMapping TypeName="DoctorPatientModel.Invitation">
-        <MappingFragment StoreEntitySet="Invitation">
-          <ScalarProperty Name="Invitaion_id" ColumnName="Invitaion_id" />
-          <ScalarProperty Name="FriendA_phone" ColumnName="FriendA_phone" />
-          <ScalarProperty Name="FriendB_phone" ColumnName="FriendB_phone" />
-          <ScalarProperty Name="Invitation_code" ColumnName="Invitation_code" />
-          <ScalarProperty Name="Invitation_type" ColumnName="Invitation_type" />
-        </MappingFragment>
-      </EntityTypeMapping>
-    </EntitySetMapping>
     <EntitySetMapping Name="Messages">
       <EntityTypeMapping TypeName="DoctorPatientModel.Message">
         <MappingFragment StoreEntitySet="Message">
+          <ScalarProperty Name="createdDate" ColumnName="createdDate" />
           <ScalarProperty Name="Is_Seen" ColumnName="Is_Seen" />
           <ScalarProperty Name="Message_ID" ColumnName="Message_ID" />
           <ScalarProperty Name="From_ID" ColumnName="From_ID" />
@@ -54,6 +44,28 @@
           <ScalarProperty Name="Role" ColumnName="Role" />
           <ScalarProperty Name="IsApproved" ColumnName="IsApproved" />
           <ScalarProperty Name="IsRejected" ColumnName="IsRejected" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="CCDs">
+      <EntityTypeMapping TypeName="DoctorPatientModel.CCD">
+        <MappingFragment StoreEntitySet="CCD">
+          <ScalarProperty Name="Allow" ColumnName="Allow" />
+          <ScalarProperty Name="CCD_File" ColumnName="CCD_File" />
+          <ScalarProperty Name="Doctor_ID" ColumnName="Doctor_ID" />
+          <ScalarProperty Name="Patient_ID" ColumnName="Patient_ID" />
+          <ScalarProperty Name="CCD_ID" ColumnName="CCD_ID" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Invitations">
+      <EntityTypeMapping TypeName="DoctorPatientModel.Invitation">
+        <MappingFragment StoreEntitySet="Invitation">
+          <ScalarProperty Name="Invitation_Type" ColumnName="Invitation_Type" />
+          <ScalarProperty Name="Invitation_Code" ColumnName="Invitation_Code" />
+          <ScalarProperty Name="To_ID" ColumnName="To_ID" />
+          <ScalarProperty Name="From_ID" ColumnName="From_ID" />
+          <ScalarProperty Name="Invitaion_ID" ColumnName="Invitaion_ID" />
         </MappingFragment>
       </EntityTypeMapping>
     </EntitySetMapping>

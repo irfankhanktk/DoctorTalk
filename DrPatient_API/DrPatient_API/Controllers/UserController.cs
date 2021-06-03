@@ -15,8 +15,105 @@ namespace DrPatient_API.Controllers
     public class UserController : ApiController
     {
         private DoctorPatientEntities db = new DoctorPatientEntities();
+        [HttpGet]
+        public IHttpActionResult GetRejectedDoctors()
+        {
+           
+            try
+            {
+                var rows = db.Users.Where(u => u.IsRejected == true && u.Role=="Doctor").ToList();
+                return Ok(rows);
+            }
+            catch (Exception)
+            {
 
-        // GET: api/User
+                throw;
+            }
+        }
+        [HttpGet]
+        public IHttpActionResult GetetApprovedDoctors()
+        {
+            try
+            {
+                var rows = db.Users.Where(u => u.IsApproved == true && u.Role == "Doctor").ToList();
+                return Ok(rows);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+           
+        }
+        [HttpGet]
+        public IHttpActionResult GetUnApprovedDoctors()
+        {
+            try
+            {
+                var rows = db.Users.Where(u => u.IsApproved == false && u.Role == "Doctor").ToList();
+                return Ok(rows);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+           
+        }
+        [HttpGet]
+        public IHttpActionResult Invite(string From_ID, string To_ID)
+        {
+            var row = db.Invitations.Where(x=>x.From_ID==From_ID&&x.To_ID==To_ID).FirstOrDefault();
+            if (row != null)
+            {
+                return BadRequest();
+            }
+            int code = new Random().Next(10000);
+            Invitation invitation = new Invitation();
+            invitation.From_ID = From_ID;
+            invitation.To_ID = To_ID;
+            invitation.Invitation_Type = "Requested";
+            invitation.Invitation_Code = code;
+            db.Invitations.Add(invitation);
+            db.SaveChanges();
+            return Ok(invitation);
+        }
+        [HttpGet]
+        public IHttpActionResult InvitationCode(string Phone,int code, string name)
+        {
+            var row = db.Invitations.Where(x=>x.To_ID== Phone&&x.Invitation_Code==code&&x.Invitation_Type=="Requested").FirstOrDefault();
+            if (row == null)
+            {
+                return BadRequest();
+            }
+
+            row.Invitation_Type = "Accepted";
+            db.Entry(row).State = EntityState.Modified;
+            try
+            {
+                db.SaveChanges();
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+            User user = new User();
+            user.Phone = Phone;
+            user.Name = name;
+            user.Role = "Patient";
+            var u = db.Users.Add(user);
+
+            try
+            {
+                db.SaveChanges();
+                return Ok(u);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex + "");
+            }
+        }
         [HttpGet]
         public IHttpActionResult IsUser(string Phone)
         {
@@ -71,20 +168,20 @@ namespace DrPatient_API.Controllers
         }
 
         // PUT: api/User/5
-        [ResponseType(typeof(void))]
-        public IHttpActionResult PutUser(string id, User user)
+        [HttpPost]
+        public IHttpActionResult UpdateImage(User user)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-
-            if (id != user.Phone)
+            var u = db.Users.Where(x=>x.Phone==user.Phone).FirstOrDefault();
+            if (u==null)
             {
                 return BadRequest();
             }
-
-            db.Entry(user).State = EntityState.Modified;
+            u.Image = user.Image;
+            db.Entry(u).State = EntityState.Modified;
 
             try
             {
@@ -92,17 +189,12 @@ namespace DrPatient_API.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!UserExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
+               
                     throw;
-                }
+         
             }
 
-            return StatusCode(HttpStatusCode.NoContent);
+            return Ok(u);
         }
 
         // POST: api/User
@@ -114,25 +206,18 @@ namespace DrPatient_API.Controllers
                 return BadRequest(ModelState);
             }
 
-            db.Users.Add(user);
+            var u=db.Users.Add(user);
 
             try
             {
                 db.SaveChanges();
+                return Ok(u);
             }
-            catch (DbUpdateException)
+            catch (Exception ex)
             {
-                if (UserExists(user.Phone))
-                {
-                    return Conflict();
-                }
-                else
-                {
-                    throw;
-                }
+              return  BadRequest(ex+"");
             }
 
-            return CreatedAtRoute("DefaultApi", new { id = user.Phone }, user);
         }
 
         // DELETE: api/User/5

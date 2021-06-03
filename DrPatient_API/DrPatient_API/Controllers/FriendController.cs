@@ -19,7 +19,7 @@ namespace DrPatient_API.Controllers
         [HttpGet]
         public IHttpActionResult GetFriends(string Phone)
         {
-            var friends = db.Friends.Where(f => f.From_ID == Phone || f.To_ID == Phone);
+            var friends = db.Friends.Where(f => (f.From_ID == Phone || f.To_ID == Phone) && f.Friend_Type=="Accepted");
             List<UserFriendView> ufv = new List<UserFriendView>();
             foreach (var item in friends)
             {
@@ -36,7 +36,6 @@ namespace DrPatient_API.Controllers
                 if (item.To_ID != Phone)
                 {
                     row.IsBlock_ByFriend = item.IsBlock_To;
-
                 }
                 else
                 {
@@ -113,7 +112,10 @@ namespace DrPatient_API.Controllers
             }
             return Ok(row);
         }
+
+       
         [HttpGet]
+
         public IHttpActionResult UnBlockFriend(int Friend_ID, string User_Phone)
         {
             var row = db.Friends.Where(f => f.Friend_ID == Friend_ID).FirstOrDefault();

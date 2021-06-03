@@ -7,9 +7,10 @@
       <Diagram DiagramId="5f7d7fc69412461dbcd752dc68897349" Name="Diagram1">
         <EntityTypeShape EntityType="DoctorPatientModel.BlockedUser" Width="1.5" PointX="0.75" PointY="0.75" IsExpanded="true" />
         <EntityTypeShape EntityType="DoctorPatientModel.Friend" Width="1.5" PointX="2.75" PointY="0.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="DoctorPatientModel.Invitation" Width="1.5" PointX="0.75" PointY="3.75" IsExpanded="true" />
         <EntityTypeShape EntityType="DoctorPatientModel.Message" Width="1.5" PointX="2.75" PointY="3.75" IsExpanded="true" />
         <EntityTypeShape EntityType="DoctorPatientModel.User" Width="1.5" PointX="4.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DoctorPatientModel.CCD" Width="1.5" PointX="5.375" PointY="3.75" />
+        <EntityTypeShape EntityType="DoctorPatientModel.Invitation" Width="1.5" PointX="0.75" PointY="3.875" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>
