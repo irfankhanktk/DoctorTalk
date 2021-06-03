@@ -48,7 +48,7 @@ const Recorder = ({ route }) => {
       Message_Type: 'audio',
       Message_Content:base64String,
       Is_Download:0,
-      // Message_time:Date.now(),
+      Created_Date:(new Date())?.toString(),
       Is_Seen:0,
     };
     insert('Message'+route.params.Friend_ID,'From_ID,To_ID,Message_Content,Message_Type,Is_Seen,Is_Download',[user.Phone,route.params.Phone,uri,'audio',1,1],'?,?,?,?,?,?');
@@ -58,14 +58,13 @@ const Recorder = ({ route }) => {
       // console.log('time: ',Date.now());
       msgInfo.Message_Content=resp.data;
       sendMessageToServer(socket,msgInfo);
-      console.log('audio uri: ',uri);
       console.log('msg info with key for audio: ',msgInfo);
-      msgInfo.Message_content=base64String;
-      // messages.push(msgInfo);
-      // dispatch({
-      //   type:actions.SET_MESSAGES,
-      //   payload:messages
-      // })
+      msgInfo.Message_Content=uri;
+      messages.push(msgInfo);
+      dispatch({
+        type:actions.SET_MESSAGES,
+        payload:messages
+      })
      
 
     }

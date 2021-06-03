@@ -10,4 +10,5 @@ export const initialState = {
     allFriends:[],
     allRequests:[],
     audio:null,
+    online:false,
 };

@@ -109,7 +109,6 @@ const PlayAudio = ({item}) => {
             setRecordTime(audioRecorderPlayer.mmss(Math.floor(e.current_position)));
             return;
         });
-        console.log("start result =====: ", base64.encode('hi i am khan'));
     };
     const onSetStartIcon = async () => {
         setStartIcon(!startIcon);
@@ -185,7 +184,7 @@ const PlayAudio = ({item}) => {
         // handlePlayPause(item);
 
         setIsPlay(!isPlay);
-        console.log('onStartPlay');
+        console.log('onStartPlay',item.Message_Content);
         const path = Platform.select({
             ios: 'hello.m4a',
              android:item.Message_Content, // should give extra dir name in android. Won't grant permission to the first level of dir.

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Text, View, StyleSheet, Dimensions, TextInput, Image, TouchableOpacity, FlatList, KeyboardAvoidingView, ScrollView, Alert, Switch } from 'react-native';
 import * as Progress from 'react-native-progress';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
@@ -18,19 +18,27 @@ import { openDatabase } from 'react-native-sqlite-storage';
 import Slider from 'react-native-slider';
 import Modal from 'react-native-modal';
 import { Picker } from '@react-native-picker/picker';
+import BackArrow from '../assets/icons/backArrow.svg'
+import moment from 'moment'
 var db = openDatabase('Khan.db');
 const image = require('../assets/images/logo.jpg');
+import {
+    widthPercentageToDP as wp, heightPercentageToDP as hp, listenOrientationChange as lor,
+    removeOrientationListener as rol
+} from 'react-native-responsive-screen';
+import Color from '../assets/Color/Color';
+
 const Chat = ({ navigation, route }) => {
     const [state, dispatch] = useStateValue();
-    const { messages, user, allFriends, socket } = state;
+    const { messages, user, allFriends, socket, online } = state;
     const [DATA, SETDATA] = useState([]);
     const [isImport, setIsImport] = useState(false);
     const [isCCD, setIsCCD] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedValue, setSelectedValue] = useState('30%');
     const [isEnabled, setIsEnabled] = useState(true);
-    const toggleSwitch = () => setIsEnabled(previousState => !previousState);
     const [h, seth] = useState('50%');
+    const flatlistRef = useRef();
     const SetHeight = (v) => {
         seth(v * 100 + '%');
     }
@@ -41,16 +49,15 @@ const Chat = ({ navigation, route }) => {
 
     //--------------------------------------DB Manager Starts here ---------------------
     const select = async () => {
+        console.log('select * from Message' + route.params.Friend_ID,);
         db.transaction(function (tx) {
 
             tx.executeSql(
                 'select * from Message' + route.params.Friend_ID,
                 [],
                 (tx, results) => {
-                    // console.log('select * from ' + tableName, results);
                     const temp = [];
                     for (let i = 0; i < results.rows.length; ++i) {
-                        // console.log('row' + i, results.rows.item(i));
                         temp.push(results.rows.item(i));
                     }
                     dispatch({
@@ -69,7 +76,6 @@ const Chat = ({ navigation, route }) => {
                 (tx, results) => {
                     const temp = [];
                     for (let i = 0; i < results.rows.length; ++i) {
-                        console.log('row' + i, results.rows.item(i));
                         temp.push(results.rows.item(i).CCD_Title + results.rows.item(i).CCD_Text);
                     }
                     if (temp.length > 0) {
@@ -77,24 +83,18 @@ const Chat = ({ navigation, route }) => {
                         setIsCCD(true);
                     }
                     SETDATA(temp);
-                    console.log('res: ', temp);
-                    // dispatch({
-                    //     type: actions.SET_MESSAGES,
-                    //     payload: temp
-                    // });
                 },
                 (tx, error) => {
                     console.log('error:', error);
-                    // res = error;
                 }
             );
         });
-        //    console.log('end res: ',res);
     }
 
     //--------------------------------------DB Manager ends here ---------------------
 
 
+    const toggleSwitch = () => setIsImport(previousState => !previousState);
 
     // const setHeader = () => {
     //     navigation.setOptions({
@@ -106,14 +106,14 @@ const Chat = ({ navigation, route }) => {
     //             </TouchableOpacity>,
     //         headerRight: () => (
     //             <View style={{ flexDirection: 'row', width: '100%' }}>
-    //                 {/* <Switch
+    //                 <Switch
     //                 style={{right:20}}
-    //                     trackColor={{ false: "#767577", true: "#81b0ff" }}
-    //                     thumbColor={isEnabled ? "#f5dd4b" : "#f4f3f4"}
-    //                     ios_backgroundColor="#3e3e3e"
-    //                     onValueChange={toggleSwitch}
-    //                     value={isEnabled}
-    //                 /> */}
+    //                    trackColor={{ false: "#767577", true: "#81b0ff" }}
+    //                         thumbColor={isEnabled ? "white" : "#f4f3f4"}
+    //                         ios_backgroundColor="#3e3e3e"
+    //                         onValueChange={toggleSwitch}
+    //                         value={isImport}
+    //                 />
     //                 <View style={{ right: 20 }}>
     //                     <Menu
     //                         ref={(ref) => (_menu = ref)}
@@ -139,13 +139,10 @@ const Chat = ({ navigation, route }) => {
     // }
     const allowPatient = async () => {
         var ccd = DATA.join('$');
-        // console.log('DATA : ',ccd);
         const response = await postData(ApiUrls.Message._postCCD, { Patient_ID: route.params.Phone, Doctor_ID: user.Phone, CCD_File: ccd, Allow: true });
-        console.log('Response of ccd:', response);
         if (response.status === 200) {
             alert('hahhahaha');
         }
-        // allowCCDToPatient(socket,route.params);
     }
     const clearConversation = () => {
         dropTable('Message' + route.params.Friend_ID);
@@ -160,7 +157,7 @@ const Chat = ({ navigation, route }) => {
         if (res.status === 200) {
             const temp = [...allFriends];
             const index = temp.indexOf(item);
-            item.IsBlock_ByMe = false;
+            item.IsBlock_ByMe = 0;
             temp[index] = item;
             dispatch({
                 type: actions.SET_All_FRIENDS,
@@ -174,7 +171,7 @@ const Chat = ({ navigation, route }) => {
         if (res.status === 200) {
             const temp = [...allFriends];
             const index = temp.indexOf(item);
-            item.IsBlock_ByMe = true;
+            item.IsBlock_ByMe = 1;
             temp[index] = item;
             dispatch({
                 type: actions.SET_All_FRIENDS,
@@ -208,10 +205,9 @@ const Chat = ({ navigation, route }) => {
     const getUnReadMessages = async () => {
         const res = await getData(`${ApiUrls.Message._getMessages}?To_ID=${user.Phone}&From_ID=${route.params.Phone}`)
         if (res.status === 200 && res.data.length > 0) {
-            console.log('res of messages: ', res.data);
             dispatch({
                 type: actions.SET_MESSAGES,
-                payload: [...messages, ...res.data]
+                payload: [...messages, res.data]
             });
             const resp = await getData(`${ApiUrls.Message._deleteMessages}?To_ID=${user.Phone}&From_ID=${route.params.Phone}`);
             if (resp.status === 200) {
@@ -221,13 +217,11 @@ const Chat = ({ navigation, route }) => {
         if (user.Role === 'Patient') {
             const response = await getData(`${ApiUrls.Message._getCCD}?Patient_ID=${user.Phone}`);
             if (response.status === 200) {
-                console.log('resp ccd : ', response.data.CCD_File.split('$'));
                 SETDATA(response.data.CCD_File.split('$'));
             }
         }
     }
     const onDelete = (item) => {
-        console.log('item ::::::', item);
         deleteRow('Message' + route.params.Friend_ID, 'WHERE Message_ID=?', [item.Message_ID]);
         const index = messages.indexOf(item);
         messages.splice(index, 1);
@@ -252,12 +246,15 @@ const Chat = ({ navigation, route }) => {
             ]
         );
     }
+    // useEffect(()=>{
+    //     select();
+    // },[messages])
     useEffect(() => {
+        // setHeader();
         if (route) {
-            // setHeader();
             create('Message' + route.params.Friend_ID);
             select();
-            getUnReadMessages();
+            // getUnReadMessages();
         }
     }, [route, allFriends])
     const get_file = async () => {
@@ -322,28 +319,43 @@ const Chat = ({ navigation, route }) => {
     //       ),
     //     });
     //   }, [navigation]);
-    // console.log('msges: ', messages);
 
     return (
         <View
             // behavior={'padding'}
             style={styles.container}
         >
-            <View style={{width:'100%',height:'5%',backgroundColor:'blue',justifyContent:'space-around',justifyContent:'space-around'}}>
-            <View style={{ flexDirection: 'row',alignItems:'center',justifyContent:'center'}}>
-                   { <Switch
-                    style={{right:20}}
-                        trackColor={{ false: "#767577", true: "#81b0ff" }}
-                        thumbColor={isEnabled ? "#f5dd4b" : "#f4f3f4"}
-                        ios_backgroundColor="#3e3e3e"
-                        onValueChange={toggleSwitch}
-                        value={isEnabled}
-                    /> } 
-                    <View style={{ right: 20 }}>
+            <View style={{ width: '100%', height: hp(7), justifyContent: 'center', backgroundColor: Color.primary }}>
+                <View style={{ width: '95%', flexDirection: 'row', alignItems: 'center', }}>
+                    <View style={{ width: '80%', flexDirection: 'row', justifyContent: 'space-around' }}>
+
+                        <TouchableOpacity style={{ width: '25%' }} onPress={() => navigation.goBack()}>
+                            <BackArrow
+                                style={{ alignSelf: 'center' }}
+                                width={30}
+                                height={30}
+                            />
+                        </TouchableOpacity>
+                        <TouchableOpacity style={{ width: '75%', flexDirection: 'row', alignItems: 'center', }}>
+                            {route.params?.Image ? <Image source={{ uri: `data:image/jpeg;base64,${route.params.Image}` }} style={styles.imgStyle} /> :
+                                <Image source={image} style={styles.imgStyle} />}
+                            <Text>  {Name}</Text>
+                        </TouchableOpacity>
+                    </View>
+                    <View style={{ width: '20%', justifyContent: 'flex-end', flexDirection: 'row', alignItems: 'center' }}>
+                        {isCCD && <Switch
+
+                            trackColor={{ false: "#767577", true: "#81b0ff" }}
+                            thumbColor={isEnabled ? "white" : "#f4f3f4"}
+                            ios_backgroundColor="#3e3e3e"
+                            onValueChange={toggleSwitch}
+                            value={isImport}
+                        />}
+
                         <Menu
                             ref={(ref) => (_menu = ref)}
                             button={<TouchableOpacity onPress={() => _menu.show()}><Entypo name='dots-three-vertical' size={20} /></TouchableOpacity>}>
-                            {IsBlock_ByMe ? <MenuItem onPress={() => { _menu.hide(), unBlockFriend(route.params) }}>UnBlock</MenuItem>
+                            {IsBlock_ByMe === 1 ? <MenuItem onPress={() => { _menu.hide(), unBlockFriend(route.params) }}>UnBlock</MenuItem>
                                 : <MenuItem onPress={() => { _menu.hide(), blockFriend(route.params) }}>Block</MenuItem>
                             }
                             <MenuDivider />
@@ -365,14 +377,14 @@ const Chat = ({ navigation, route }) => {
                 minimumValue={0}
                 value={0.5}
                 onValueChange={(v) => SetHeight(v)} /> */}
-            {!isImport && isCCD && <TouchableOpacity style={{ padding: 5, backgroundColor: 'blue', justifyContent: 'center', alignItems: 'center' }} onPress={() => setIsImport(true)}>
+            {/* {!isImport && isCCD && <TouchableOpacity style={{ padding: 5, backgroundColor: 'blue', justifyContent: 'center', alignItems: 'center' }} onPress={() => setIsImport(true)}>
                 <Text>show CCD</Text>
-            </TouchableOpacity>}
+            </TouchableOpacity>} */}
             {isImport &&
                 <>
-                    <TouchableOpacity style={{ padding: 5, backgroundColor: 'blue', justifyContent: 'center', alignItems: 'center' }} onPress={() => setIsImport(false)}>
+                    {/* <TouchableOpacity style={{ padding: 5, backgroundColor: 'blue', justifyContent: 'center', alignItems: 'center' }} onPress={() => setIsImport(false)}>
                         <Text>Hide CCD</Text>
-                    </TouchableOpacity>
+                    </TouchableOpacity> */}
                     <View style={[styles.ccdStyle, { height: selectedValue }]}>
                         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{
                             flexDirection: 'row',
@@ -404,17 +416,44 @@ const Chat = ({ navigation, route }) => {
             }
             <View style={styles.messagesStyle}>
                 <FlatList
+                    ref={flatlistRef}
+                    onContentSizeChange={() => flatlistRef.current.scrollToEnd({ animating: true })}
                     data={messages}
                     renderItem={({ item, index }) => (
-                        <View >{(item.From_ID === Phone) ?
-                            <View style={{ marginVertical: 5, alignItems: 'flex-start', }}>
+                        <View >{(item.From_ID === user.Phone) ?
+                            <View onLongPress={() => deleteMessage(item)} style={{ marginVertical: 5, right: 0, alignItems: 'flex-end', }}>
                                 {item.Message_Type === 'text' ?
-                                    <View style={{ backgroundColor: 'skyblue', borderRadius: 5, width: '30%' }}>
-                                        <Text style={{ fontSize: 20 }}>{item.Message_Content}</Text>
-                                        <Text style={{ alignSelf: 'flex-end' }}>5:40</Text>
+                                    <View style={{ backgroundColor: 'skyblue', borderRadius: 5, minWidth: '20%', maxWidth: '70%', padding: 10 }}>
+                                        <Text>{item.Message_Content}</Text>
+                                        {/* <Text style={{ alignSelf: 'flex-end' }}>{item?.Created_Date && moment(new Date(item?.Created_Date)).fromNow()}</Text> */}
+                                        <Text style={{ alignSelf: 'flex-end' }}>{'\n'}{item?.Created_Date && (new Date(item?.Created_Date)).toLocaleTimeString()}</Text>
+
                                     </View>
                                     : item.Message_Type === 'image' ?
-                                        <View style={{ borderRadius: 5, width: '30%' }}>
+                                        <View style={{ borderRadius: 5, width: '40%' }}>
+                                            <Image source={{ uri: item.Message_Content }} style={{ width: '100%', height: 70, }} />
+                                            <Text style={{ alignSelf: 'flex-end' }}>{item?.Created_Date && (new Date(item?.Created_Date)).toLocaleTimeString()}</Text>
+                                        </View>
+                                        :
+                                        <View style={{ borderRadius: 5 }}>
+                                            <PlayAudio item={item} />
+                                            <Text style={{ alignSelf: 'flex-end' }}>12:45:30</Text>
+                                            {/* <Text style={{ alignSelf: 'flex-end' }}>{'\n'}{item?.Created_Date && (new Date(item?.Created_Date)).toLocaleTimeString()}</Text> */}
+                                        </View>
+                                }
+
+                            </View>
+
+                            :
+                            <View onLongPress={() => deleteMessage(item)} style={{ marginVertical: 5, right: 0, alignItems: 'flex-start', }}>
+
+                                {item.Message_Type === 'text' ?
+                                    <View style={{ backgroundColor: 'gray', borderRadius: 5, minWidth: '20%', maxWidth: '70%', padding: 10 }}>
+                                        <Text>{item.Message_Content}</Text>
+                                        <Text style={{ alignSelf: 'flex-end' }}>{'\n'}{item?.Created_Date && (new Date(item?.Created_Date)).toLocaleTimeString()}</Text>
+                                    </View>
+                                    : item.Message_Type === 'image' ?
+                                        <View style={{ borderRadius: 5, }}>
                                             {item.Is_Download === 1 ?
                                                 <View>
                                                     <Image source={{ uri: `data:image/jpeg;base64,${item.Message_Content}` }} style={{ width: 70, height: 70, }} />
@@ -440,29 +479,11 @@ const Chat = ({ navigation, route }) => {
 
                                                 </View>
                                             }
-                                            <Text style={{ alignSelf: 'flex-start' }}>5:46</Text>
                                         </View>
                                 }
+                                {/* <Text style={{ alignSelf: 'flex-end' }}>{item?.Created_Date && moment(new Date(item?.Created_Date)).fromNow()}</Text> */}
                             </View>
-                            : item.To_ID === Phone &&
-                            <TouchableOpacity onLongPress={() => deleteMessage(item)} style={{ marginVertical: 5, right: 0, alignItems: 'flex-end', }}>
-                                {item.Message_Type === 'text' ?
-                                    <View style={{ backgroundColor: 'skyblue', borderRadius: 5, width: '30%' }}>
-                                        <Text style={{ fontSize: 20 }}>{item.Message_Content}</Text>
-                                        <Text style={{ alignSelf: 'flex-end' }}>5:40</Text>
-                                    </View>
-                                    : item.Message_Type === 'image' ?
-                                        <View style={{ borderRadius: 5, width: '30%' }}>
-                                            <Image source={{ uri: item.Message_Content }} style={{ width: 70, height: 70, }} />
-                                            <Text style={{ alignSelf: 'flex-end' }}>5:46</Text>
-                                        </View>
-                                        :
-                                        <View style={{ borderRadius: 5 }}>
-                                            <PlayAudio item={item} />
-                                            <Text style={{ alignSelf: 'flex-end' }}>5:46</Text>
-                                        </View>
-                                }
-                            </TouchableOpacity>
+
                         }
                         </View>
                     )}
@@ -516,6 +537,7 @@ const styles = StyleSheet.create({
     },
     messagesStyle: {
         flex: 10,
+        paddingHorizontal: 10
     },
     textStyle: {
         color: "white",

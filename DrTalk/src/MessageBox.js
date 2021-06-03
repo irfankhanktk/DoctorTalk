@@ -14,6 +14,8 @@ import { cos } from 'react-native-reanimated';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { insert } from './API/DManager';
+import Color from './assets/Color/Color';
+import { decryptData, encryptMyData } from './EncrypDecrypt';
 
 const actionSheetRef = createRef();
 
@@ -21,12 +23,12 @@ const MessageBox = ({ route }) => {
     const [txtInputHeight, setTxtInputHeight] = useState(0.05);
     const [msg, setMsg] = useState('');
     const [state, dispatch] = useStateValue();
-    const { token, messages, socket, user, allFriends } = state;
+    const { token, messages, socket, user, allFriends, online} = state;
     const [modalVisible, setModalVisible] = useState(true);
     const sendImage = async (base64, uri) => {
-        const msgInfo=getMessageInfo(base64,'image');
+        const msgInfo=await getMessageInfo(base64,'image');
         const resp = await postData(ApiUrls.Message._postMessage, msgInfo);
-        console.log('response fro napio: ',resp);
+        // console.log('response fro napio: ',resp);
         if(resp.status==200){
             alert('sent');
             console.log('id:::::::',resp.data);
@@ -62,20 +64,26 @@ const MessageBox = ({ route }) => {
             // navigation.goBack();
         }
     }
-    const getMessageInfo = (content, messageType) => {
+    const getMessageInfo =async(content, messageType) => {
+        
+            content= await encryptMyData(content);
+           
         return ({
             Friend_ID: route.params.Friend_ID,
             From_ID: user.Phone,
             To_ID: route.params.Phone,
             Message_Type: messageType,
-            Message_Content: content,
-            // Message_time:Date.now(),
+            Message_Content: JSON.stringify(content),
+            Created_Date:(new Date()).toString(),
             Is_Download: 0,
             Is_Seen: 0,
         });
     }
     const sendMessage = async (content, messageType, uri) => {
-
+        // if(online){
+        //     alert('something went wrong');
+        //     return;
+        // }
         if (route.params.IsBlock_ByMe) {
             Alert.alert(
                 "",
@@ -92,7 +100,9 @@ const MessageBox = ({ route }) => {
 
             return;
         }
-        const msgInfo = getMessageInfo(content, messageType);
+            const msgInfo =await getMessageInfo(content, messageType);
+        
+       
         sendMessageToServer(socket, msgInfo);
         // if (base64) {
         //     msgInfo.Message_Content = base64;
@@ -101,9 +111,11 @@ const MessageBox = ({ route }) => {
             content = uri;
             msgInfo.Message_Content=uri;
         }
-        insert('Message' + route.params.Friend_ID, 'From_ID,To_ID,Message_Content,Message_Type,Is_Seen,Is_Download', [user.Phone, route.params.Phone, content, messageType, 1,1], '?,?,?,?,?,?');
-
+       
+        insert('Message' + route.params.Friend_ID, 'From_ID,To_ID,Message_Content,Message_Type,Is_Seen,Is_Download,Created_Date', [user.Phone, route.params.Phone, content, messageType, 1,1,msgInfo.Created_Date], '?,?,?,?,?,?,?');
+        msgInfo.Message_Content=content;
         messages.push(msgInfo);
+        console.log('mesg.lenth',messages.length);
         dispatch({
             type: actions.SET_MESSAGES,
             payload: messages
@@ -134,7 +146,7 @@ const MessageBox = ({ route }) => {
                     </TouchableOpacity>
                     <Recorder route={route} />
                     <TouchableOpacity onPress={() => sendMessage(msg, 'text')}>
-                        <MaterialIcon name='send' size={30} color='blue' />
+                        <MaterialIcon name='send' size={30} color={Color.primary} />
                     </TouchableOpacity>
                 </View>
             </View>

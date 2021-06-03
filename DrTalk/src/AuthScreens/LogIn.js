@@ -11,32 +11,48 @@ import { CustomActivityIndicator } from '../CustomActivityIndicator';
 import { ApiUrls } from '../API/ApiUrl';
 import { getData, postData } from '../API/ApiCalls'
 import Color from '../assets/Color/Color';
+import CheckBox from '@react-native-community/checkbox';
 const image = require('../assets/images/logo.jpg');
-import { widthPercentageToDP as wp, heightPercentageToDP as hp,listenOrientationChange as lor,
-    removeOrientationListener as rol } from 'react-native-responsive-screen';
+import {
+    widthPercentageToDP as wp, heightPercentageToDP as hp, listenOrientationChange as lor,
+    removeOrientationListener as rol
+} from 'react-native-responsive-screen';
+import OptModal from '../CustomScreens/OtpModal';
+import {decryptData, encryptMyData} from '../EncrypDecrypt';
 // E:\React_Native\DrTalk\src\images\logo.jpg
-
 const LogIn = ({ navigation }) => {
     const [state, dispatch] = useStateValue();
     const [isSignUp, setIsSignUp] = useState(false);
     const [name, setName] = useState('');
     const [contact, setContact] = useState('');
     const [isloading, setIsloading] = useState(false);
-    const [code, setCode] = useState('');
+    const [otp, setOtp] = useState('');
     const [isPatient, setIsPatient] = useState(false);
-    const setData = async (data) => {
+    const [otpModalVisible, setOtpModalVisible] = useState(false);
+    const [userData, setUserData] = useState();
+    const [toggleCheckBox, setToggleCheckBox] = useState(false);
+    const [code, setCode] = useState();
+    const setData = async () => {
         dispatch({
             type: actions.SET_USER,
-            payload: data,
+            payload: userData,
         });
         dispatch({
             type: actions.SET_TOKEN,
-            payload: data,
+            payload: userData,
         });
-        await AsyncStorage.setItem(s.user, JSON.stringify(data));
+        await AsyncStorage.setItem(s.user, JSON.stringify(userData));
 
         //socket.emit('auth',{name:name,contact:contact});
     }
+    const generateCode = async () => {
+        const otp = Math.floor(Math.random() * 10000);
+        console.log('your code : ', otp);
+        // alert('your code : '+otp);
+        setOtp(otp)
+
+    }
+
     const onSignUp = async () => {
 
         if (contact === '') {
@@ -47,16 +63,24 @@ const LogIn = ({ navigation }) => {
         else {
             setIsloading(true);
             if (isPatient) {
-                const res = await postData(`${ApiUrls.patient.invitation._addPatient}`, { Pphone: contact, code: code });
-                if (res.status === 200 && res.data.PPhone !== null) {
-                    alert('you may sign in now');
+                const res = await getData(`${ApiUrls.User._invitationCode}?Phone=${contact}&Code=${code}&name=${name}`);
+                console.log('response of invitationcode:', res);
+                if (res.status === 200) {
+                    setOtpModalVisible(true);
+                    generateCode();
+                    setUserData(res.data);
+                    // setData();
+                }
+                else {
+                    alert('Something went wrong');
                 }
             }
             else {
-                const res = await postData(`${ApiUrls.User._addUser}`, { Name: name, Phone: contact,Role:'Doctor', isApproved: false, isRejected: false });
+                const res = await postData(`${ApiUrls.User._addUser}`, { Name: name, Phone: contact, Role: 'Doctor', isApproved: false, isRejected: false });
                 console.log('post res ', res);
-                if (res && res.status===200) {
-                    setData(res.data);
+                if (res && res.status === 200) {
+                    alert('wait for approval');
+                    // setData(res.data);
                 }
                 else {
 
@@ -68,6 +92,16 @@ const LogIn = ({ navigation }) => {
             setIsloading(false);
         }
     };
+    const onCodeComplete = (code) => {
+        console.log('entered:', code, otp);
+        if (otp == code) {
+            //   alert('successfully');
+            setData();
+            setOtpModalVisible(false);
+        } else {
+            alert('did not match');
+        }
+    }
     const onSignIn = async () => {
         // setIsShowApprove(true);
 
@@ -81,8 +115,10 @@ const LogIn = ({ navigation }) => {
             console.log('res in login press :', res);
 
             if (res.status === 200 && res.data) {
+                setOtpModalVisible(true);
+                generateCode();
+                setUserData(res.data);
 
-                setData(res.data);
             }
             else {
                 alert('invalid account');
@@ -90,20 +126,20 @@ const LogIn = ({ navigation }) => {
             setIsloading(false);
         }
     }
-    const setViaLink = () => {
-        setIsPatient(true);
-    }
+    useEffect(()=>{
+        (async()=>{
+           const d= await encryptMyData('hello');
+           console.log('d in use: ',d);
+           const txt=await decryptData(d);
+           console.log('text in use: ',txt);
+        })();
+       
+    },[])
     const setSignInScreen = () => {
 
         setIsSignUp(false);
         setIsPatient(false);
     }
-   useEffect(()=>{
-    //    setTimeout(() => {
-    //        setIsloading(false);
-    //    }, 2000);
-    return(()=>{});
-   },[]);
     return (
         <ScrollView style={styles.container}>
             <CustomActivityIndicator visible={isloading}/>
@@ -111,12 +147,12 @@ const LogIn = ({ navigation }) => {
                 <Image source={image} style={{ height: hp('30%'), width: wp('100%') }} />
             </View>
             <View style={styles.footer}>
-                <CustomInputText setOnChangeText={(t) => setContact(t)} iconName='phone' placeholder='Mobile Number' />
+                <CustomInputText setOnChangeText={(t) => setContact(t)} iconName='phone' placeholder='Mobile Number'  />
                 {isSignUp && (
                     <>
                         <CustomInputText setOnChangeText={(t) => setName(t)} placeholder='Name here' iconName='user' />
                         {isPatient &&
-                            <CustomInputText setOnChangeText={(t) => setContact(t)} iconName='phone' placeholder='Mobile Number' />
+                            <CustomInputText setOnChangeText={(t) => setCode(t)} iconName='codepen' placeholder='Invitation Code' />
                         }
                         <TouchableOpacity onPress={() => onSignUp()} style={{ marginTop: hp(10), width: wp('90%'), height: hp(5), backgroundColor: Color.btnPrimary, alignItems: 'center', borderRadius: 10, justifyContent: 'center' }}>
                             <Text style={{ color: '#ffff', fontWeight: 'bold', fontSize: 18 }}>SignUp</Text>
@@ -129,7 +165,7 @@ const LogIn = ({ navigation }) => {
                                 <TouchableOpacity style={[styles.linkStyle, { marginTop: 0 }]} onPress={() => setIsPatient(false)}>
                                     <Text style={{ color: 'blue' }}>Back</Text>
                                 </TouchableOpacity> :
-                                <TouchableOpacity style={[styles.linkStyle, { marginTop: 0 }]} onPress={() => setViaLink()}>
+                                <TouchableOpacity style={[styles.linkStyle, { marginTop: 0 }]} onPress={() => setIsPatient(true)}>
                                     <Text style={{ color: 'blue' }}>Via Link(Patient)</Text>
                                 </TouchableOpacity>
                             }
@@ -139,6 +175,14 @@ const LogIn = ({ navigation }) => {
                 }
                 {!isSignUp &&
                     <>
+                        <View style={{marginTop:30,flexDirection: 'row', alignItems: 'center',width:'90%'}}>
+                            <CheckBox
+                                disabled={false}
+                                value={toggleCheckBox}
+                                onValueChange={(newValue) => setToggleCheckBox(newValue)}
+                            />
+                            <Text>Remember me</Text>
+                        </View>
                         <TouchableOpacity onPress={() => onSignIn()} style={{ marginTop: hp(10), width: wp('90%'), height: hp(5), backgroundColor: Color.btnPrimary, alignItems: 'center', borderRadius: 10, justifyContent: 'center' }}>
                             <Text style={{ color: '#ffff', fontWeight: 'bold', fontSize: 18 }}>SignIn</Text>
                         </TouchableOpacity>
@@ -148,6 +192,7 @@ const LogIn = ({ navigation }) => {
                     </>
                 }
             </View>
+            <OptModal visible={otpModalVisible} generateCode={() => generateCode()} onCodeComplete={(otp) => onCodeComplete(otp)} />
         </ScrollView>
 
     );
@@ -158,6 +203,7 @@ const styles = StyleSheet.create({
         flex: 1,
         //    width:'100%'
         // backgroundColor: '#32415e'
+
     },
     ImgContainer: {
         height: hp('30%'),
@@ -166,6 +212,7 @@ const styles = StyleSheet.create({
     footer: {
         height: hp('70%'),
         width: wp('100%'),
+        paddingTop:40,
         alignItems: 'center'
     },
     linkStyle: {

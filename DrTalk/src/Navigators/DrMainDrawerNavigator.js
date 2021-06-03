@@ -11,7 +11,7 @@ import Entypo from "react-native-vector-icons/Entypo";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { CustomDrawerContent } from './DrawerContent';
 import EditProfile from './EditProfile';
-import Invite from '../Patient/ContactList';
+import Invite from '../Admin/ContactList';
 import Profile from './Profile';
 import RequestScreen from '../User/Request';
 import Chat from '../User/Chat';
@@ -25,7 +25,7 @@ const Stack = createStackNavigator();
     return (
       <Stack.Navigator>
         <Stack.Screen name={'ChatScreen'} component={MyFriends} options={{headerShown:false}}/>
-        <Stack.Screen name={'ChatActivity'} component={Chat} options={{headerShown:false}}/>
+        <Stack.Screen name={'ChatActivity'} component={Chat}  options={{headerShown:false}}/>
         <Stack.Screen name={'Profile'} component={Profile}/>
       </Stack.Navigator>
     );

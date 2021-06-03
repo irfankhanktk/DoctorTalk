@@ -10,29 +10,38 @@ import CustomItem from '../CustomScreens/CustomItem';
 import { actions } from '../Store/Reducer';
 import { useStateValue } from '../Store/StateProvider';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
-import { accessibilityProps } from 'react-native-paper/lib/typescript/components/MaterialCommunityIcon';
-
+import Color from '../assets/Color/Color';
+import { create, create_CCD_Table, create_Friend_Table, insert } from '../API/DManager';
+import { openDatabase } from 'react-native-sqlite-storage';
+var db = openDatabase('Khan.db');
 const image = require('../assets/images/logo.jpg');
 // import Contacts from 'react-native-contacts'
 const RequestScreen = ({ navigation }) => {
   const [state, dispatch] = useStateValue();
   const { allRequests, token, user, allFriends } = state;
-  // const [allPatients,setAllPatients]=useState([]);
-  // console.log('Request screen    ', allRequests);
   const getRequestsData = async () => {
     const res = await getData(`${ApiUrls.Friend._getFriendRequests}?Phone=${user.Phone}`);
     if (res.status === 200) {
-      dispatch({
-        type: actions.SET_All_REQUESTS,
-        payload: res.data
-      });
+      if (res?.data.length > 0) {
+        dispatch({
+          type: actions.SET_All_REQUESTS,
+          payload: res.data
+        });
+
+        res?.data?.forEach(f => {
+          insert('Friend' + user.Phone, 'Friend_Type, Image, IsApproved ,IsBlock_ByFriend, IsBlock_ByMe,IsRejected, Name, Phone, Role', [f.Friend_Type, f.Image, f.IsApproved, f.IsBlock_ByFriend, f.IsBlock_ByMe, f.IsRejected, f.Name, f.Phone, f.Role], ' ?, ?, ?, ?, ?, ?, ?, ?, ? ');
+        });
+      } else {
+        dispatch({
+          type: actions.SET_All_REQUESTS,
+          payload: []
+        });
+      }
     }
     else {
-      alert('Check Connection');
-      dispatch({
-        type: actions.SET_All_REQUESTS,
-        payload: []
-      });
+      alert('Check Your Internet Connection');
+      select('Friend' + user.Phone);
+
     }
   }
   useEffect(() => {
@@ -61,6 +70,33 @@ const RequestScreen = ({ navigation }) => {
     }
   }
 
+  const select = async (tableName) => {
+    // alert(tableName);
+
+    db.transaction(function (tx) {
+      tx.executeSql(
+        'select * from ' + tableName +' where Friend_Type="Requested"',
+        [],
+        (tx, results) => {
+
+          const temp = [];
+
+          for (let i = 0; i < results.rows.length; ++i) {
+            temp.push(results.rows.item(i));
+          }
+
+          dispatch({
+            type: actions.SET_All_REQUESTS,
+            payload: temp
+          });
+        },
+        (tx, error) => {
+          console.log('error:', error);
+          // res = error;
+        }
+      );
+    });
+  }
   const quickActions = (index, item) => {
     return (
       <View style={{
@@ -71,7 +107,7 @@ const RequestScreen = ({ navigation }) => {
         <TouchableOpacity onPress={() => alterRequest(item, index, "Rejected")} style={styles.requestBtn}>
           <Text>Cancel</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => alterRequest(item, index, "Accepted")} style={{ backgroundColor: '#8000ff', height: 80, width: '25%', justifyContent: 'center', alignItems: 'center' }}>
+        <TouchableOpacity onPress={() => alterRequest(item, index, "Accepted")} style={{ backgroundColor:Color.primary, height: 80, width: '25%', justifyContent: 'center', alignItems: 'center' }}>
           <Text>Confirm</Text>
         </TouchableOpacity>
       </View>

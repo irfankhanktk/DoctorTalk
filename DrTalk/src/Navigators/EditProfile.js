@@ -52,33 +52,19 @@ const EditProfile = ({ navigation }) => {
     const updateImage = async (base64) => {
         user.Image=base64;
         console.log(user);
-        const res = await postData(`${ApiUrls.user._updateImage}`,user)
+        const res = await postData(`${ApiUrls.User._updateImage}`,user)
         console.log('res::::',res);
 
-        if(res&&res.data&&user.Role==='Patient')
-        {
-            user.Image=res.data.PImage;
+          if(res.status===200){
+            user.Image=res.data.Image;
             dispatch({
                 type:actions.SET_USER,
                 payload:user,
             })
-        }
-        else if(res&&res.data&&user.Role==='Doctor')
-        {
-            user.Image=res.data.DImage;
-            dispatch({
-                type:actions.SET_USER,
-                payload:user,
-            })
-        }
-        else if(res&&res.data&&user.Role==='Admin')
-        {
-            user.Image=res.data.AImage;
-            dispatch({
-                type:actions.SET_USER,
-                payload:user,
-            })
-        }
+          }
+          
+           
+      
         actionSheetRef.current?.setModalVisible(false);
 
     }

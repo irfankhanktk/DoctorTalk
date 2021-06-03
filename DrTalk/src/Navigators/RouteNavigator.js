@@ -15,20 +15,23 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import Feather from "react-native-vector-icons/Feather";
 import { CustomDrawerContent } from './DrawerContent';
 import EditProfile from './EditProfile';
-import Admin from '../Patient/Admin';
-import ApprovedDoctors from '../Patient/ApprovedDr';
-import RejectedDoctors from '../Patient/RejectedDr';
+
 import PatientMainDrawerNavigator from './PatientMainDrawerNavigator';
 import DrMainDrawerNavigator from './DrMainDrawerNavigator';
+import Admin from '../Admin/Admin';
+import ApprovedDoctors from '../Admin/ApprovedDr';
+import RejectedDoctors from '../Admin/RejectedDr';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { CustomActivityIndicator } from '../CustomActivityIndicator';
 
 const Drawer = createDrawerNavigator();
-const Stack = createStackNavigator();
 
 function RouteNavigator({ initialRoute }) {
   const [state, dispatch] = useStateValue();
-  const { messages, token } = state;
+  const { token } = state;
   // const [text, setText] = useState('');
   const [socket, setSocket] = useState('');
+  const [isloading, setIsloading] = useState(true);
 
 
 
@@ -38,7 +41,7 @@ function RouteNavigator({ initialRoute }) {
 
     if (res) {
       let userData = JSON.parse(res);
-      const ioClient = socketClient('http://192.168.1.107:3000');
+      const ioClient = socketClient('http://192.168.0.101:3000');
       setSocket(ioClient);
 
       console.log('getdata user ', userData);
@@ -51,26 +54,37 @@ function RouteNavigator({ initialRoute }) {
         type: actions.SET_USER,
         payload: userData
       });
+    
     }
+    setIsloading(false);
   };
 
   React.useEffect(() => {
-    let is_mounted = true;
-    if (is_mounted) {
+   
+    try {
       getData();
+    } catch (error) {
+      
     }
+    
+    
 
   }, []);
 
+  if(isloading)
+  {
+    return <CustomActivityIndicator isloading={isloading}/>
+  }
 
   return (
     <NavigationContainer>
       <Drawer.Navigator screenOptions={{ gestureEnabled: false }} initialRouteName={initialRoute} drawerContent={(props) => <CustomDrawerContent {...props} />}>
         {token ?
           <>
-            {token.Role === 'Patient' ?
-              <Drawer.Screen name="Patient" component={PatientMainDrawerNavigator} />
-              :token.Role === 'Admin' ?<Drawer.Screen name='Admin' component={AdminMainDrawerNavigator}/>
+            {token.Role === 'Admin' ?
+            <Drawer.Screen name='Admin' component={AdminMainDrawerNavigator}/>
+              // <Drawer.Screen name="Patient" component={PatientMainDrawerNavigator} />
+              // :token.Role === 'Admin' ?<Drawer.Screen name='Admin' component={AdminMainDrawerNavigator}/>
               :<Drawer.Screen name='Doctor' component={DrMainDrawerNavigator}/>
             }
           </>
@@ -98,7 +112,7 @@ const AdminMainDrawerNavigator = () => {
     </Drawer.Navigator>
   );
 };
-
+const Tab =createBottomTabNavigator();
 const AdminMainTabNavigator = () => {
   return (
     <Tab.Navigator tabBarOptions={{keyboardHidesTabBar:true}}>

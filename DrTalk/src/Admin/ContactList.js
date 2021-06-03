@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useEffect } from 'react';
-import { View, Image, Text, TouchableOpacity, Share, PermissionsAndroid,CheckBox} from 'react-native';
+import { View, Image, Text, TouchableOpacity, Share, PermissionsAndroid} from 'react-native';
 import SwipeableFlatList from 'react-native-swipeable-list';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 const image = require('../assets/images/logo.jpg');
@@ -10,6 +10,7 @@ import { ApiUrls } from '../API/ApiUrl';
 import { useStateValue } from '../Store/StateProvider';
 import { getData } from '../API/ApiCalls';
 import { CustomeSearchBar } from '../CustomScreens/CustomSearchBar';
+import CheckBox from '@react-native-community/checkbox';
 const Invite = (props) => {
   const [state, dispatch] = useStateValue();
   const {user}=state;
@@ -107,15 +108,15 @@ const Invite = (props) => {
         keyExtractor={(item, index) => index + 'key'}
         keyExtractor={item => item.displayName}
         renderItem={({ item }) => (
-          <View style={{flexDirection:'row',alignItems:'center'}}>
-           <CheckBox
+          <View style={{flexDirection:'row',alignItems:'center', backgroundColor:'#d0d0ff',}}>
+           {/* <CheckBox
           value={isSelected}
           onValueChange={setSelection}
-          style={styles.checkbox}
-        />
+          // style={styles.checkbox}
+        /> */}
           <TouchableOpacity style={{  width: '90%',
           height: 80, 
-          backgroundColor:'#d0d0ff',
+        
           flexDirection: 'row',
           alignItems: 'center'}}>
             <Image style={{ left: 10, height: 50, width: 50, borderRadius: 50 }} source={image} />

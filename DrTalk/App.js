@@ -10,7 +10,6 @@ import PlayAudio from './src/PlayAudio';
 import Recorder from './src/Recorder';
 import { StatusBar } from 'react-native';
 import TestDB from './src/API/TestDB';
-import MySlider from './src/User/SliderTest';
 
 
 

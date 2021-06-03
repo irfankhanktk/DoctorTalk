@@ -1,15 +1,22 @@
-export const IP='http://192.168.1.113';
+export const IP='http://192.168.0.100';
 export const ApiUrls = {
   baseUrl: `${IP}/DrPatient_API/api/`,
   auth:{
         signIn:'User/IsUser',
         SignUp:'',
   },
+ 
 User:{
-  _addUser:'/User/PostUser',
-  _getAllUsers:'/User/GetUsers',
-  _updateImage:'/User/UpdateImage',
-  _invite:'/User/Invite',
+  _addUser:'User/PostUser',
+  _getAllUsers:'User/GetUsers',
+  _updateImage:'User/UpdateImage',
+  _invite:'User/Invite',
+  _invitationCode:'User/InvitationCode',
+  _admin:{
+    _getRejectedDoctors:'User/GetRejectedDoctors',
+    _getApprovedDoctors:'User/GetetApprovedDoctors',
+    _getUnApprovedDoctors:'User/GetUnApprovedDoctors',
+  },
 },
 Friend:{
   _getMyFriends:'Friend/GetFriends',

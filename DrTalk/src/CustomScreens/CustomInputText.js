@@ -6,7 +6,7 @@ const CustomInputText = ({setOnChangeText,secureTextEntry, placeholder, iconName
 
     return (
         <View style={styles.container}>
-             <FontAwesome name={iconName} size={25} color='black' />
+             <FontAwesome name={iconName} size={25} color='black'/>
             <TextInput onChangeText={(t)=>setOnChangeText(t)} secureTextEntry={secureTextEntry} placeholder={placeholder} style={{ width: '100%', color: 'black', fontSize: 16, paddingLeft: 10 }} />
         </View>
     );
@@ -18,7 +18,7 @@ const styles = StyleSheet.create({
         // backgroundColor: '#273751',
         // borderRadius: 20,
         marginVertical: 10,
-        borderWidth: 1,
+        borderBottomWidth: 1,
         flexDirection: 'row',
         alignItems: 'center',
         paddingLeft: 10

@@ -5,8 +5,9 @@ const image = require('../assets/images/logo.jpg');
 
 const CustomItem = ({ item, navigation, screen }) => {
     return (
-        <TouchableOpacity onPress={() => screen ? navigation.navigate(screen, item) : {}} style={styles.userInfo}>
-            <View style={{ width: '20%', alignItems: 'center' }}>
+        <TouchableOpacity onPress={() => screen ? navigation.navigate(screen, item) : {}} style={{backgroundColor:'#d0d0ff'}}>
+            <View style={styles.userInfo}>
+            <View style={{ width: '20%', alignItems: 'center', }}>
                 {item.Image ? <Image style={styles.imgStyle} source={{ uri: `data:image/jpeg;base64,${item.Image}` }} />
                     : <Image style={{ height: 50, width: 50, borderRadius: 50 }} source={image} />
                 }
@@ -16,13 +17,13 @@ const CustomItem = ({ item, navigation, screen }) => {
                     <Text>{item.Name}</Text>
                     <Text>{item.Role}</Text>
                 </View>
-                {item.IsBlock_ByMe && <View style={{ width: '40%', flexDirection: 'row',alignItems:'center',justifyContent:'space-around'}}>
+                {item.IsBlock_ByMe===1 && <View style={{ width: '40%', flexDirection: 'row',alignItems:'center',justifyContent:'space-around'}}>
                     <Text>Blocked</Text>
                     <Entypo name='block' size={15} color='red'/>
                 </View>}
 
             </View>
-
+            </View>
 
         </TouchableOpacity>
     );
@@ -32,13 +33,13 @@ const styles = StyleSheet.create({
     userInfo: {
         width: '100%',
         height: 80,
-        backgroundColor: '#d0d0ff',
+        backgroundColor: 'white',
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between'
     },
     imgStyle: {
-        left: 10,
+        
         height: 50,
         width: 50,
         borderRadius: 50

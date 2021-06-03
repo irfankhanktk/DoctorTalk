@@ -41,6 +41,7 @@ export const postData = async (relativeUrl,data) => {
     const response = await axios(config)
       .then((res) => res)
       .catch((error) =>  {
+        console.log(response);
         return {status:500};
       });
     return response;

@@ -9,13 +9,19 @@ export const actions = {
     SET_SOCKET: 'set_socket',
     SET_ClIENTS: 'set_clients',
     SET_MESSAGES: 'set_messages',
-    SET_AUDIO: 'set_audio'
+    SET_AUDIO: 'set_audio',
+    SET_ONLINE:'set_online',
 
 };
 
 export const reducer = (state, action) => {
     // console.log(action);
     switch (action.type) {
+        case actions.SET_ONLINE:
+            return {
+                ...state,
+                online: action.payload,
+            };
         case actions.SET_USER:
             return {
                 ...state,
