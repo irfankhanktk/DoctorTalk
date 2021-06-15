@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
-import { View, TouchableOpacity, FlatList } from 'react-native';
+import { View, TouchableOpacity, FlatList, Text, Settings,Alert } from 'react-native';
 import { ApiUrls, IP } from '../API/ApiUrl';
 import { actions } from '../Store/Reducer';
 import { useStateValue } from '../Store/StateProvider';
@@ -10,9 +10,11 @@ import CustomItem from '../CustomScreens/CustomItem';
 import CustomHeader from '../CustomHeader';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { CustomeSearchBar } from '../CustomScreens/CustomSearchBar';
-import { create, create_CCD_Table, create_Friend_Table, insert } from '../API/DManager';
+import { create, create_CCD_Table, create_Friend_Table, create_User_Table, insert } from '../API/DManager';
 import { openDatabase } from 'react-native-sqlite-storage';
 import { decryptData } from '../EncrypDecrypt';
+import Color from '../assets/Color/Color';
+import Foundation from 'react-native-vector-icons/Foundation'
 var db = openDatabase('Khan.db');
 const image = require('../assets/images/logo.jpg');
 const ioClient = socketClient(`${IP}:3000`);
@@ -22,19 +24,20 @@ const MyFriends = ({ navigation }) => {
   const [searchText, setSearchText] = useState('');
   const [filteredFriends, setFilteredFriends] = useState([]);
   const getFriendsData = async () => {
+
     const res_Friends = await getData(`${ApiUrls.Friend._getMyFriends}?Phone=${user.Phone}`);
-    create_Friend_Table(user.Phone);
+
     create_CCD_Table();
     if (res_Friends.status === 200) {
-    
+      create_Friend_Table(user.Phone);
       if (res_Friends?.data.length > 0) {
         dispatch({
           type: actions.SET_All_FRIENDS,
           payload: res_Friends?.data
         });
-        
+
         res_Friends?.data.forEach(f => {
-          insert('Friend' + user.Phone, 'Friend_Type, Image, IsApproved ,IsBlock_ByFriend, IsBlock_ByMe,IsRejected, Name, Phone, Role', [f.Friend_Type, f.Image, f.IsApproved, f.IsBlock_ByFriend, f.IsBlock_ByMe, f.IsRejected, f.Name, f.Phone, f.Role], ' ?, ?, ?, ?, ?, ?, ?, ?, ? ');
+          insert('Friend' + user.Phone, 'Friend_Type, Image, IsApproved ,IsBlock_ByFriend, IsBlock_ByMe,IsRejected, Name, Phone, Role, Status, IsArchive', [f.Friend_Type, f.Image, f.IsApproved, f.IsBlock_ByFriend, f.IsBlock_ByMe, f.IsRejected, f.Name, f.Phone, f.Role, f.Status, f.Is_Archive], ' ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?');
         });
         // insert()
       }
@@ -45,6 +48,41 @@ const MyFriends = ({ navigation }) => {
           payload: []
         });
       }
+
+
+
+      const res = await getData(`${ApiUrls.User._getAllUsers}?Phone=${user.Phone}`);
+
+      if (res.status === 200) {
+        if (res?.data.length > 0) {
+          create_User_Table(user.Phone);
+
+          dispatch({
+            type: actions.SET_All_DOCTORS,
+            payload: res.data?.filter(item => item.Role === 'Doctor')
+          });
+
+          res?.data?.forEach(f => {
+            insert('User' + user.Phone, 'Image, Name, Phone, Role', [f.Image, f.Name, f.Phone, f.Role], ' ?, ?, ?, ? ');
+          });
+        } else {
+          dispatch({
+            type: actions.SET_All_DOCTORS,
+            payload: []
+          });
+        }
+      }
+      else {
+        alert('Check Your Internet Connection');
+        select('User' + user.Phone);
+
+      }
+
+
+
+
+
+
     }
     else {
       alert('Check Your internet Connections');
@@ -58,7 +96,7 @@ const MyFriends = ({ navigation }) => {
 
     db.transaction(function (tx) {
       tx.executeSql(
-        'select * from ' + tableName,
+        tableName.indexOf('Friend') >= 0 ? "select * from " + tableName + " where Friend_Type='Accepted'" : 'select * from ' + tableName,
         [],
         (tx, results) => {
 
@@ -99,11 +137,15 @@ const MyFriends = ({ navigation }) => {
     ioClient.emit('auth', token);
 
 
-    ioClient.on('clients', (allClients, isOnline) => {
+    ioClient.on('newUser', (connectedUser,) => {
+      console.log('connectedUser :  ', connectedUser);
       dispatch({
         type: actions.SET_ClIENTS,
-        payload: allClients,
+        payload: ConnectedUser,
       });
+
+
+
       dispatch({
         type: actions.SET_ONLINE,
         payload: isOnline,
@@ -114,9 +156,9 @@ const MyFriends = ({ navigation }) => {
       (async () => {
         msg.Message_Content = await decryptData(JSON.parse(msg.Message_Content));
         insert('Message' + msg.Friend_ID, 'From_ID,To_ID,Message_Content,Message_Type,Is_Seen,Is_Download, Created_Date', [msg.From_ID, msg.To_ID, msg.Message_Content, msg.Message_Type, 0, 0, msg.Created_Date?.toString()], '?,?,?,?,?,?,?');
-        console.log(' msg.Friend_ID on ' + msg.Friend_ID);
-        console.log('old messages length: ', messages.length);
-        console.log('new icomming msg: ', msg);
+        // console.log(' msg.Friend_ID on ' + msg.Friend_ID);
+        // console.log('old messages length: ', messages.length);
+        // console.log('new icomming msg: ', msg);
         select('Message' + msg.Friend_ID);
         // messages.push(msg);
         // dispatch({
@@ -144,17 +186,68 @@ const MyFriends = ({ navigation }) => {
       setFilteredFriends(filteredData);
     }
   }
+  const addToArchive = async (item, index) => {
+    // alert('jjj')
+    Alert.alert(
+      ' ',
+      'Are You Sure To Archive this Chat',
+      [
+        {
+          text: 'Cancel',
+          onPress: () => console.log('Cancel Pressed'),
+          style: 'cancel'
+        },
+        {
+          text: 'Archive', onPress: async() => {
+            const res = await getData(`${ApiUrls.Friend._alterArchive}?Friend_ID=${item?.Friend_ID}&Phone=${user?.Phone}&IsArchive=true`);
+            console.log('res of archive: ', res);
+            if (res.status === 200) {
+              let temp = [...allFriends];
+              item.IsArchive = true;
+              temp[index] = item;
+              dispatch({
+                type: actions.SET_All_FRIENDS,
+                payload: temp
+              });
+            }
+            else {
+              alert('Something went wrong!')
+            }
+          }
+        }
+      ]
+    );
+
+  }
   useEffect(() => {
     if (user) {
       getConnection();
       getFriendsData();
     }
   }, [user]);
+  console.log(allFriends[allFriends.length - 1]);
   return (
     <>
       <CustomHeader navigation={navigation} />
       <CustomeSearchBar onChangeText={(t) => searchFriends(t)} value={searchText} />
       <FlatList
+        data={searchText.length > 0 ? filteredFriends : allFriends}
+        keyExtractor={(item, index) => index + ''}
+        itemBackgroundColor={'#fff'}
+        renderItem={({ item, index }) => (!item.IsArchive &&
+          <CustomItem item={item} screen={'ChatActivity'} navigation={navigation} alterArchive={(item) => addToArchive(item, index)} flag={true} />
+        )}
+        ItemSeparatorComponent={() => (
+          <View style={{ height: 1, }} />
+        )}
+        ListFooterComponent={
+          <TouchableOpacity onPress={() => navigation.navigate('ArchiveChats')} style={{ alignItems: 'center', justifyContent: 'flex-start', paddingHorizontal: 20, flexDirection: 'row', height: 30, backgroundColor: '#fffff', marginTop: 10 }}>
+            <Foundation name={'archive'} size={20} /><Text>{'     '}Archive Chats</Text>
+          </TouchableOpacity>
+        }
+      />
+
+      {/* <FlatList
         data={searchText.length > 0 ? filteredFriends : allFriends}
         keyExtractor={(item, index) => index + ''}
         itemBackgroundColor={'#fff'}
@@ -164,7 +257,7 @@ const MyFriends = ({ navigation }) => {
         ItemSeparatorComponent={() => (
           <View style={{ height: 1, }} />
         )}
-      />
+      /> */}
     </>
   );
 };

@@ -1,23 +1,13 @@
 import { openDatabase } from 'react-native-sqlite-storage';
 var db = openDatabase('Khan.db');
 export const insert = (tableName, columns, data, questions) => {
-    // create(tableName);
-    console.log('insert fun');
-    console.log('tableName:',tableName);
-    console.log('columns',columns);
-    console.log('data',data);
-    console.log('questions :',questions);
-    console.log('INSERT INTO ' + tableName + '(' + columns + ') VALUES (' + questions+')');
-
-
+ 
     db.transaction(function (tx) {
         tx.executeSql(
             'INSERT INTO ' + tableName + '(' + columns + ') VALUES (' + questions + ')',
             data,
             (tx, results) => {
-                console.log('Results', results.rowsAffected);
                 if (results.rowsAffected > 0) {
-                    console.log('inserted successfully in '+tableName);
                 } else console.log('insertion Failed');
             },
             (tx, results) => {
@@ -37,7 +27,6 @@ export const select = async (tableName) => {
             [],
             (tx, results) => {
                 // const temp = [];
-                console.log('results.rows.length::::::::::::::::::::  ',results.rows.length);
                 for (let i = 0; i < results.rows.length; ++i) {
                     console.log('row' + i, results.rows.item(i));
                     // temp.push(results.rows.item(i));
@@ -70,12 +59,12 @@ export const create = async (tableName) => {
 export const create_Friend_Table = async (Phone) => {
 
     db.transaction((tx) => {
-        // tx.executeSql('DROP TABLE IF EXISTS Friend' , [],
-        //     (tx, results) => console.log('successfully droped Friend'),
-        //     (tx, results) => console.log('failed to drop table Friend')
-        // );
+        tx.executeSql('DROP TABLE IF EXISTS Friend'+Phone , [],
+            (tx, results) => console.log('successfully droped Friend'),
+            (tx, results) => console.log('failed to drop table Friend')
+        );
         tx.executeSql(
-            'CREATE TABLE IF NOT EXISTS Friend'+ Phone +'(Friend_ID INTEGER PRIMARY KEY, Friend_Type TEXT, Image TEXT, IsApproved INTEGER,IsBlock_ByFriend INTEGER,IsBlock_ByMe INTEGER,IsRejected INTEGER, Name TEXT, Phone TEXT, Role TEXT)',
+            'CREATE TABLE IF NOT EXISTS Friend'+ Phone +'(Friend_ID INTEGER PRIMARY KEY, Friend_Type TEXT, Image TEXT, IsApproved INTEGER,IsBlock_ByFriend INTEGER,IsBlock_ByMe INTEGER,IsRejected INTEGER, Name TEXT, Phone TEXT, Role TEXT,Status Text, IsArchive INTEGER)',
             [],
             (tx, results) => { console.log('successfully created Friend') },
             (tx, results) => { console.log('failed to create table Friend') }
@@ -86,10 +75,10 @@ export const create_Friend_Table = async (Phone) => {
 export const create_User_Table = async (Phone) => {
 
     db.transaction((tx) => {
-        // tx.executeSql('DROP TABLE IF EXISTS Friend' , [],
-        //     (tx, results) => console.log('successfully droped Friend'),
-        //     (tx, results) => console.log('failed to drop table Friend')
-        // );
+        tx.executeSql('DROP TABLE IF EXISTS User'+ Phone , [],
+            (tx, results) => console.log('successfully droped Friend'),
+            (tx, results) => console.log('failed to drop table Friend')
+        );
         tx.executeSql(
             'CREATE TABLE IF NOT EXISTS User'+ Phone +'(User_ID INTEGER PRIMARY KEY, Image TEXT, Name TEXT, Phone TEXT, Role TEXT)',
             [],
@@ -111,6 +100,22 @@ export const update = async (tableName, columns, values) => {
             values,
             (tx, results) => { console.log('successfully updated ' + tableName) },
             (tx, results) => { console.log('failed to update ' + tableName) }
+        );
+    });
+
+}
+export const updateStatus = async (phone, status) => {
+
+    db.transaction((tx) => {
+        // tx.executeSql('DROP TABLE IF EXISTS ' + tableName, [],
+        //     (tx, results) => alert('successfully droped ' + tableName),
+        //     (tx, results) => alert('failed to drop table ' + tableName)
+        // );
+        tx.executeSql(
+            'UPDATE Friend'+ phone +' SET Status=? where Phone=?',
+            [status,phone],
+            (tx, results) => { console.log('successfully updated status' + tableName)},
+            (tx, results) => { console.log('failed to update status' + tableName) }
         );
     });
 

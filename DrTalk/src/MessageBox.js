@@ -23,15 +23,12 @@ const MessageBox = ({ route }) => {
     const [txtInputHeight, setTxtInputHeight] = useState(0.05);
     const [msg, setMsg] = useState('');
     const [state, dispatch] = useStateValue();
-    const { token, messages, socket, user, allFriends, online} = state;
+    const { token, messages, socket, user, allFriends, online } = state;
     const [modalVisible, setModalVisible] = useState(true);
     const sendImage = async (base64, uri) => {
-        const msgInfo=await getMessageInfo(base64,'image');
+        const msgInfo = await getMessageInfo(base64, 'image');
         const resp = await postData(ApiUrls.Message._postMessage, msgInfo);
-        // console.log('response fro napio: ',resp);
-        if(resp.status==200){
-            alert('sent');
-            console.log('id:::::::',resp.data);
+        if (resp.status == 200) {
             sendMessage(resp.data, 'image', uri);
         }
     }
@@ -64,17 +61,17 @@ const MessageBox = ({ route }) => {
             // navigation.goBack();
         }
     }
-    const getMessageInfo =async(content, messageType) => {
-        
-            content= await encryptMyData(content);
-           
+    const getMessageInfo = async (content, messageType) => {
+
+        content = await encryptMyData(content);
+
         return ({
             Friend_ID: route.params.Friend_ID,
             From_ID: user.Phone,
             To_ID: route.params.Phone,
             Message_Type: messageType,
             Message_Content: JSON.stringify(content),
-            Created_Date:(new Date()).toString(),
+            Created_Date: (new Date()).toString(),
             Is_Download: 0,
             Is_Seen: 0,
         });
@@ -100,22 +97,21 @@ const MessageBox = ({ route }) => {
 
             return;
         }
-            const msgInfo =await getMessageInfo(content, messageType);
-        
-       
+        const msgInfo = await getMessageInfo(content, messageType);
+
+
         sendMessageToServer(socket, msgInfo);
         // if (base64) {
         //     msgInfo.Message_Content = base64;
         // }
         if (uri) {
             content = uri;
-            msgInfo.Message_Content=uri;
+            msgInfo.Message_Content = uri;
         }
-       
-        insert('Message' + route.params.Friend_ID, 'From_ID,To_ID,Message_Content,Message_Type,Is_Seen,Is_Download,Created_Date', [user.Phone, route.params.Phone, content, messageType, 1,1,msgInfo.Created_Date], '?,?,?,?,?,?,?');
-        msgInfo.Message_Content=content;
+
+        insert('Message' + route.params.Friend_ID, 'From_ID,To_ID,Message_Content,Message_Type,Is_Seen,Is_Download,Created_Date', [user.Phone, route.params.Phone, content, messageType, 1, 1, msgInfo.Created_Date], '?,?,?,?,?,?,?');
+        msgInfo.Message_Content = content;
         messages.push(msgInfo);
-        console.log('mesg.lenth',messages.length);
         dispatch({
             type: actions.SET_MESSAGES,
             payload: messages
@@ -135,21 +131,18 @@ const MessageBox = ({ route }) => {
     }
 
     return (
-        <View>
-            <View style={{ borderTopEndRadius: 10, borderTopEndRadius: 10, backgroundColor: 'gray', width: '100%', flexDirection: 'row', height: height * txtInputHeight, justifyContent: 'center' }}>
-                <TextInput onChangeText={text => setMsg(text)} value={msg} style={styles.InputTxt} width={'70%'} height={height * txtInputHeight} placeholder='type here' onContentSizeChange={() => updateSize()} numberOfLines={5} multiline />
-                <View style={{ flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', width: '30%' }}>
-                    <TouchableOpacity onPress={() => {
-                        actionSheetRef.current?.setModalVisible();
-                    }}>
-                        <Entypo name='camera' size={25} />
-                    </TouchableOpacity>
-                    <Recorder route={route} />
-                    <TouchableOpacity onPress={() => sendMessage(msg, 'text')}>
-                        <MaterialIcon name='send' size={30} color={Color.primary} />
-                    </TouchableOpacity>
-                </View>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 10 }}>
+            <View style={{ borderRadius: 20, width: '88%', backgroundColor:'#fffff0', flexDirection: 'row', justifyContent: 'center' }}>
+                <TextInput onChangeText={text => setMsg(text)} value={msg} style={styles.InputTxt} width={'80%'} height={height * txtInputHeight} placeholder='type here' onContentSizeChange={() => updateSize()} multiline />
+                <TouchableOpacity onPress={() => {
+                    actionSheetRef.current?.setModalVisible();
+                }} style={{ alignSelf: 'flex-end', alignItems: 'center', width: '20%', height: 30 }}>
+                    <Entypo name='camera' size={25} />
+                </TouchableOpacity>
             </View>
+            {msg.length > 0 ? <TouchableOpacity onPress={()=>sendMessage(msg,'text')} style={{position:'absolute',right:10,bottom:6}}>
+                <MaterialIcon color={'blue'} name={'send'} size={25}/>
+            </TouchableOpacity> : <Recorder route={route} />}
             <ActionSheet ref={actionSheetRef}>
                 <View style={{ height: 200, padding: 20 }}>
                     <Text style={{ fontSize: 20, fontWeight: 'bold' }}>Select Photo</Text>
@@ -173,9 +166,10 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     InputTxt: {
-        borderTopEndRadius: 10,
-        borderTopEndRadius: 10
-
+        //    borderWidth:1,
+        //    borderRadius:20,
+        maxHeight: 100,
+        paddingHorizontal: 10
     },
     footer: {
         flex: 1,
@@ -222,8 +216,8 @@ const styles = StyleSheet.create({
         textAlign: "center"
     },
     imgStyle: {
-        width: 100,
-        height: 100,
-        borderRadius: 50
+        width: 50,
+        height: 50,
+        borderRadius: 50,
     },
 });

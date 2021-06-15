@@ -57,14 +57,12 @@ const LogIn = ({ navigation }) => {
 
         if (contact === '') {
             alert('fill the required field');
-            // console.log('code :', code);
             return;
         }
         else {
             setIsloading(true);
             if (isPatient) {
                 const res = await getData(`${ApiUrls.User._invitationCode}?Phone=${contact}&Code=${code}&name=${name}`);
-                console.log('response of invitationcode:', res);
                 if (res.status === 200) {
                     setOtpModalVisible(true);
                     generateCode();
@@ -77,7 +75,6 @@ const LogIn = ({ navigation }) => {
             }
             else {
                 const res = await postData(`${ApiUrls.User._addUser}`, { Name: name, Phone: contact, Role: 'Doctor', isApproved: false, isRejected: false });
-                console.log('post res ', res);
                 if (res && res.status === 200) {
                     alert('wait for approval');
                     // setData(res.data);
@@ -104,7 +101,18 @@ const LogIn = ({ navigation }) => {
     }
     const onSignIn = async () => {
         // setIsShowApprove(true);
-
+        dispatch({
+            type: actions.SET_All_FRIENDS,
+            payload: []
+        });
+        dispatch({
+            type: actions.SET_All_REQUESTS,
+            payload: []
+        });
+        dispatch({
+            type: actions.SET_All_USERS,
+            payload: []
+        });
         if (contact === '') {
             alert('fill the required field');
             return;
@@ -112,7 +120,6 @@ const LogIn = ({ navigation }) => {
         else {
             setIsloading(true);
             const res = await getData(`${ApiUrls.auth.signIn}?Phone=${contact}`);
-            console.log('res in login press :', res);
 
             if (res.status === 200 && res.data) {
                 setOtpModalVisible(true);
@@ -126,15 +133,7 @@ const LogIn = ({ navigation }) => {
             setIsloading(false);
         }
     }
-    useEffect(()=>{
-        (async()=>{
-           const d= await encryptMyData('hello');
-           console.log('d in use: ',d);
-           const txt=await decryptData(d);
-           console.log('text in use: ',txt);
-        })();
-       
-    },[])
+  
     const setSignInScreen = () => {
 
         setIsSignUp(false);

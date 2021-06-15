@@ -37,14 +37,11 @@ function RouteNavigator({ initialRoute }) {
 
   const getData = async () => {
     const res = await AsyncStorage.getItem(s.user);
-    // console.log('getdata res', res);
 
     if (res) {
       let userData = JSON.parse(res);
       const ioClient = socketClient('http://192.168.0.101:3000');
       setSocket(ioClient);
-
-      console.log('getdata user ', userData);
       ioClient.emit('auth', userData);
       dispatch({
         type: actions.SET_TOKEN,

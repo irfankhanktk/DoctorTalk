@@ -3,6 +3,7 @@ export const actions = {
     SET_TOKEN: 'set_token',
     SET_All_USERS: 'set_all_users',
     SET_All_DOCTORS: 'set_all_doctors',
+    SET_All_PATIENTS: 'set_all_patients',
     SET_All_REQUESTS: 'set_all_requests',
     SET_All_FRIENDS: 'set_all_friends',
     SET_MSG: 'set_msg',
@@ -17,6 +18,11 @@ export const actions = {
 export const reducer = (state, action) => {
     // console.log(action);
     switch (action.type) {
+        case actions.SET_All_PATIENTS:
+            return {
+                ...state,
+                patients: action.payload,
+            };
         case actions.SET_ONLINE:
             return {
                 ...state,
@@ -32,10 +38,10 @@ export const reducer = (state, action) => {
                 ...state,
                 audio: action.payload,
             };
-        case actions.SET_All_USERS:
+        case actions.SET_All_DOCTORS:
             return {
                 ...state,
-                allUsers: action.payload,
+                doctors: action.payload,
             };
         case actions.SET_All_REQUESTS:
             return {

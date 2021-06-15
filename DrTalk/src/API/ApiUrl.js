@@ -1,4 +1,4 @@
-export const IP='http://192.168.0.100';
+export const IP='http://192.168.1.109';//172.17.112.1
 export const ApiUrls = {
   baseUrl: `${IP}/DrPatient_API/api/`,
   auth:{
@@ -22,9 +22,11 @@ Friend:{
   _getMyFriends:'Friend/GetFriends',
   _getFriendRequests:'Friend/GetFriendRequests',
   _alterRequest:'Friend/AlterRequest',
-  _addFriend:'Friend/AddFriend',
+  _alterArchive:'Friend/AlterArchive',
+  // _addFriend:'Friend/AddFriend',
   _blockFriend:'Friend/BlockFriend',
   _unBlockFriend:'Friend/UnBlockFriend',
+  _sendFriendRequest:'Friend/SendFriendRequest'
 },
 Message:{
   _postMessage:'Message/PostMessage',

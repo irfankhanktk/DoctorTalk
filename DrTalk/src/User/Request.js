@@ -21,6 +21,7 @@ const RequestScreen = ({ navigation }) => {
   const { allRequests, token, user, allFriends } = state;
   const getRequestsData = async () => {
     const res = await getData(`${ApiUrls.Friend._getFriendRequests}?Phone=${user.Phone}`);
+    console.log('');
     if (res.status === 200) {
       if (res?.data.length > 0) {
         dispatch({
@@ -29,7 +30,7 @@ const RequestScreen = ({ navigation }) => {
         });
 
         res?.data?.forEach(f => {
-          insert('Friend' + user.Phone, 'Friend_Type, Image, IsApproved ,IsBlock_ByFriend, IsBlock_ByMe,IsRejected, Name, Phone, Role', [f.Friend_Type, f.Image, f.IsApproved, f.IsBlock_ByFriend, f.IsBlock_ByMe, f.IsRejected, f.Name, f.Phone, f.Role], ' ?, ?, ?, ?, ?, ?, ?, ?, ? ');
+          insert('Friend' + user.Phone, 'Friend_Type, Image, IsApproved ,IsBlock_ByFriend, IsBlock_ByMe,IsRejected, Name, Phone, Role, Status', [f.Friend_Type, f.Image, f.IsApproved, f.IsBlock_ByFriend, f.IsBlock_ByMe, f.IsRejected, f.Name, f.Phone, f.Role, f.Status], ' ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ');
         });
       } else {
         dispatch({
@@ -46,8 +47,9 @@ const RequestScreen = ({ navigation }) => {
   }
   useEffect(() => {
     if (user) {
+     getRequestsData();
+    //  select('Friend' + user.Phone);
 
-      getRequestsData();
 
     }
   }, [user]);
@@ -71,28 +73,26 @@ const RequestScreen = ({ navigation }) => {
   }
 
   const select = async (tableName) => {
-    // alert(tableName);
-
     db.transaction(function (tx) {
       tx.executeSql(
-        'select * from ' + tableName +' where Friend_Type="Requested"',
+        "select * from " + tableName +" where Friend_Type='Requested'",
         [],
         (tx, results) => {
 
           const temp = [];
-
           for (let i = 0; i < results.rows.length; ++i) {
             temp.push(results.rows.item(i));
           }
-
+          console.log('temp : ',temp);
+          temp.forEach(element => {
+          });
           dispatch({
             type: actions.SET_All_REQUESTS,
             payload: temp
           });
         },
         (tx, error) => {
-          console.log('error:', error);
-          // res = error;
+          throw new Error('Internal DB error :',error);
         }
       );
     });
@@ -113,7 +113,6 @@ const RequestScreen = ({ navigation }) => {
       </View>
     );
   }
-  // console.log('allreq :',allRequests);
   return (
     <>
       <CustomHeader navigation={navigation} />

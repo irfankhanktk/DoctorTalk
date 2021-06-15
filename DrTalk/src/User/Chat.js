@@ -9,6 +9,7 @@ import PlayAudio from '../PlayAudio';
 import { allowCCDToPatient, getData, postData } from '../API/ApiCalls';
 import { ApiUrls } from '../API/ApiUrl';
 import Entypo from 'react-native-vector-icons/Entypo'
+import Feather from 'react-native-vector-icons/Feather'
 import RNFS from 'react-native-fs'
 import DocumentPicker from 'react-native-document-picker';
 import { WebView } from 'react-native-webview';
@@ -27,6 +28,7 @@ import {
     removeOrientationListener as rol
 } from 'react-native-responsive-screen';
 import Color from '../assets/Color/Color';
+import { set } from 'react-native-reanimated';
 
 const Chat = ({ navigation, route }) => {
     const [state, dispatch] = useStateValue();
@@ -37,6 +39,7 @@ const Chat = ({ navigation, route }) => {
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedValue, setSelectedValue] = useState('30%');
     const [isEnabled, setIsEnabled] = useState(true);
+    const [ccdIndex,setCcdIndex]=useState(0);
     const [h, seth] = useState('50%');
     const flatlistRef = useRef();
     const SetHeight = (v) => {
@@ -49,7 +52,6 @@ const Chat = ({ navigation, route }) => {
 
     //--------------------------------------DB Manager Starts here ---------------------
     const select = async () => {
-        console.log('select * from Message' + route.params.Friend_ID,);
         db.transaction(function (tx) {
 
             tx.executeSql(
@@ -74,9 +76,25 @@ const Chat = ({ navigation, route }) => {
                 'select * from CCD WHERE Friend_ID=?',
                 [route.params.Friend_ID],
                 (tx, results) => {
-                    const temp = [];
+                    const temp = new Array(4);
                     for (let i = 0; i < results.rows.length; ++i) {
-                        temp.push(results.rows.item(i).CCD_Title + results.rows.item(i).CCD_Text);
+                        const row = results.rows.item(i);
+                        if (row.CCD_Title?.toLowerCase().indexOf('allergies') > -1) {
+                            temp[0] = row.CCD_Title + row.CCD_Text;
+                            //temp.push(row.CCD_Title + row.CCD_Text);//
+                        }
+                        else if (row.CCD_Title?.toLocaleLowerCase().indexOf('immuni') > -1) {
+                            temp[1] = row.CCD_Title + row.CCD_Text;
+                            //temp.push(row.CCD_Title + row.CCD_Text);//
+                        }
+                        else if (row.CCD_Title?.toLocaleLowerCase().indexOf('proced') > -1) {
+                            temp[2] = row.CCD_Title + row.CCD_Text;
+                            //temp.push(row.CCD_Title + row.CCD_Text);//
+                        }
+                        else if (row.CCD_Title?.toLocaleLowerCase().indexOf('medication') > -1) {
+                            temp[3] = row.CCD_Title + row.CCD_Text;
+                            //temp.push(row.CCD_Title + row.CCD_Text);//
+                        }
                     }
                     if (temp.length > 0) {
                         setIsImport(true);
@@ -254,7 +272,7 @@ const Chat = ({ navigation, route }) => {
         if (route) {
             create('Message' + route.params.Friend_ID);
             select();
-            // getUnReadMessages();
+            getUnReadMessages();
         }
     }, [route, allFriends])
     const get_file = async () => {
@@ -339,7 +357,7 @@ const Chat = ({ navigation, route }) => {
                         <TouchableOpacity style={{ width: '75%', flexDirection: 'row', alignItems: 'center', }}>
                             {route.params?.Image ? <Image source={{ uri: `data:image/jpeg;base64,${route.params.Image}` }} style={styles.imgStyle} /> :
                                 <Image source={image} style={styles.imgStyle} />}
-                            <Text>  {Name}</Text>
+                            <Text>{Name}</Text>
                         </TouchableOpacity>
                     </View>
                     <View style={{ width: '20%', justifyContent: 'flex-end', flexDirection: 'row', alignItems: 'center' }}>
@@ -372,6 +390,21 @@ const Chat = ({ navigation, route }) => {
 
                 </View>
             </View>
+            <View style={{ padding: 5, flexDirection: 'row', justifyContent: 'space-between' }}>
+                {DATA[0] && <TouchableOpacity onPress={() => setCcdIndex(0)} style={{ backgroundColor: Color.btnPrimary, borderRadius: 10, height: 30, justifyContent: 'center', alignItems: 'center', width: '20%', }}>
+                    <Text style={{ color: Color.white }}>Allergies</Text>
+                </TouchableOpacity>
+                }
+                {DATA[1] && <TouchableOpacity onPress={() =>setCcdIndex(1)} style={{ backgroundColor: Color.btnPrimary, borderRadius: 10, height: 30, justifyContent: 'center', alignItems: 'center', width: '30%', }}>
+                    <Text style={{ color: Color.white }}>Immunization</Text>
+                </TouchableOpacity>}
+                {DATA[2] && <TouchableOpacity onPress={() =>setCcdIndex(2)} style={{ backgroundColor: Color.btnPrimary, borderRadius: 10, height: 30, justifyContent: 'center', alignItems: 'center', width: '24%', }}>
+                    <Text style={{ color: Color.white }}>Procedures</Text>
+                </TouchableOpacity>}
+                {DATA[3] && <TouchableOpacity onPress={() =>setCcdIndex(3)} style={{ backgroundColor: Color.btnPrimary, borderRadius: 10, height: 30, justifyContent: 'center', alignItems: 'center', width: '24%', }}>
+                    <Text style={{ color: Color.white }}>Medication</Text>
+                </TouchableOpacity>}
+            </View>
             {/* <Slider
 
                 minimumValue={0}
@@ -385,8 +418,15 @@ const Chat = ({ navigation, route }) => {
                     {/* <TouchableOpacity style={{ padding: 5, backgroundColor: 'blue', justifyContent: 'center', alignItems: 'center' }} onPress={() => setIsImport(false)}>
                         <Text>Hide CCD</Text>
                     </TouchableOpacity> */}
-                    <View style={[styles.ccdStyle, { height: selectedValue }]}>
-                        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{
+                    {/* <View style={[styles.ccdStyle, { height: selectedValue }]}> */}
+                    <View style={[styles.ccdStyle]}>
+                        {DATA?.length >= 0 && <WebView originWhitelist={['*']}
+                            source={{ html: DATA[ccdIndex]}}
+                            // source={{ html: item.replace('<table', '<table height='+h+' style="font-size:20"').split('border="1"').join("")}}
+                            source={{ html: DATA[ccdIndex]?.replace('<text', '<text height="100%" style="font-size:40"').replace('<table', '<table height=' + h + ' style="font-size:30"') }}
+                            style={{ width: '100%', }}
+                        />}
+                        {/* <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{
                             flexDirection: 'row',
                             paddingHorizontal: 10,
                         }}>
@@ -398,8 +438,8 @@ const Chat = ({ navigation, route }) => {
                                         style={{ width: 350, marginHorizontal: 30 }}
                                     />
                                 ))}
-                        </ScrollView>
-                        <Picker
+                        </ScrollView> */}
+                        {/* <Picker
                             style={{ width: '40%' }}
                             selectedValue={selectedValue}
                             onValueChange={(itemValue, itemIndex) =>
@@ -410,7 +450,12 @@ const Chat = ({ navigation, route }) => {
                             <Picker.Item label="50%" value="50%" />
                             <Picker.Item label="60%" value="60%" />
                             <Picker.Item label="70%" value="70%" />
-                        </Picker>
+                        </Picker> */}
+                        {/* <View style={{flexDirection:'row',alignSelf:'flex-end',right:10,}}>
+                            <Feather name={'zoom-in'} size={25} />
+                            <Feather name={'zoom-out'} size={25} />
+                        </View> */}
+
                     </View>
                 </>
             }
@@ -512,6 +557,7 @@ const Chat = ({ navigation, route }) => {
                     </View>
                 </View>
             </Modal> */}
+            
         </View>
     );
 };
@@ -533,7 +579,8 @@ const styles = StyleSheet.create({
     },
     ccdStyle: {
         width: '100%',
-        // backgroundColor: 'black'
+        // backgroundColor: 'black',
+        height: '20%'
     },
     messagesStyle: {
         flex: 10,

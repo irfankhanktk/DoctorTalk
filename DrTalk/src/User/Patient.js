@@ -16,9 +16,9 @@ import { openDatabase } from 'react-native-sqlite-storage';
 var db = openDatabase('Khan.db');
 const image = require('../assets/images/logo.jpg');
 
-const AllUser = ({ navigation }) => {
+const Patient = ({ navigation }) => {
   const [state, dispatch] = useStateValue();
-  const { doctors, user, } = state;
+  const { patients, user, } = state;
 
   const addFriend = async (item, index) => {
     // alert('added');
@@ -26,11 +26,11 @@ const AllUser = ({ navigation }) => {
     const res = await postData(`${ApiUrls.Friend._sendFriendRequest}?From_ID=${user.Phone}&To_ID=${item.Phone}`);
     console.log('res : ',res);
     if (res.status === 200) {
-      let temp = [...allUsers];
+      let temp = [...patients];
       //
       temp.splice(index, 1);
       dispatch({
-        type: actions.SET_All_DOCTORS,
+        type: actions.SET_All_USERS,
         payload: temp
       });
     }
@@ -57,7 +57,7 @@ const AllUser = ({ navigation }) => {
 
     db.transaction(function (tx) {
       tx.executeSql(
-        "select * from " + tableName+" where Role='Doctor'",
+        "select * from " + tableName+" where Role='Patient'",
         [],
         (tx, results) => {
 
@@ -68,7 +68,7 @@ const AllUser = ({ navigation }) => {
           }
 
           dispatch({
-            type: actions.SET_All_DOCTORS,
+            type: actions.SET_All_PATIENTS,
             payload: temp
           });
 
@@ -119,7 +119,7 @@ const AllUser = ({ navigation }) => {
     <>
       <CustomHeader navigation={navigation} />
       <SwipeableFlatList
-        data={doctors}
+        data={patients}
         keyExtractor={(item, index) => index + 'key'}
         renderItem={({ item }) => (item.Image === null &&
           <CustomItem item={item} navigation={navigation} />
@@ -135,4 +135,4 @@ const AllUser = ({ navigation }) => {
     </>
   );
 };
-export default AllUser;
+export default Patient;
