@@ -41,7 +41,28 @@ export const postData = async (relativeUrl,data) => {
     const response = await axios(config)
       .then((res) => res)
       .catch((error) =>  {
-        console.log(response);
+        // console.log(response);
+        return {status:500};
+      });
+    return response;
+ 
+};
+export const postFormData = async (relativeUrl,data) => {
+  // console.log('data::::',data);
+  const url = getUrl(relativeUrl);
+  console.log('url :', url);
+  const config = {
+    method: 'post',
+    url: url,
+    headers: {
+      'Content-Type': 'multipart/form-data; ',
+    },
+    data:data,
+  };
+    const response = await axios(config)
+      .then((res) => res)
+      .catch((error) =>  {
+        // console.log(response);
         return {status:500};
       });
     return response;

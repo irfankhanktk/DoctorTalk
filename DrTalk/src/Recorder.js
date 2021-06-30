@@ -19,6 +19,8 @@ import { postData, sendMessageToServer } from './API/ApiCalls';
 import { ApiUrls } from './API/ApiUrl';
 import { insert } from './API/DManager';
 import Color from './assets/Color/Color';
+import { openDatabase } from 'react-native-sqlite-storage';
+var db = openDatabase('Khan.db');
 
 const audioRecorderPlayer = new AudioRecorderPlayer();
 const Recorder = (props) => {
@@ -40,8 +42,49 @@ const Recorder = (props) => {
   const { user, messages, socket } = state;
   audioRecorderPlayer.setSubscriptionDuration(0.09); // optional. Default is 0.1
 
+  function formatAMPM(date) {
+    var hours = date.getHours();
+    var minutes = date.getMinutes();
+    var ampm = hours >= 12 ? 'pm' : 'am';
+    hours = hours % 12;
+    hours = hours ? hours : 12; // the hour '0' should be '12'
+    minutes = minutes < 10 ? '0'+minutes : minutes;
+    var strTime = hours + ':' + minutes + ' ' + ampm;
+    return strTime;
+  }
+  const select = async () => {
+    db.transaction(function (tx) {
+
+        tx.executeSql(
+            'select * from Message' + route.params.Friend_ID,
+            [],
+            (tx, results) => {
+                const temp = [];
+                for (let i = 0; i < results.rows.length; ++i) {
+                    temp.push(results.rows.item(i));
+                }
+
+      
+                let groupData = temp.reduce((acc, item) => {
+                    if (!acc[item.Created_Date])
+                        acc[item.Created_Date] = [];
+                    acc[item.Created_Date].push(item);
+                    return acc;
+                }, {});
+
+                dispatch({
+                    type: actions.SET_MESSAGES,
+                    payload: Object.values(groupData)
+                });
+
+            },
+            (tx, error) => {
+                console.log('error:', error);
+            }
+        );
+    });
+}
   async function sendAudioMessage(uri) {
-    // get a list of files and directories in the main bundle
     const base64String = await RNFS.readFile(uri, "base64");
     const msgInfo = {
       Friend_ID: route.params.Friend_ID,
@@ -50,22 +93,17 @@ const Recorder = (props) => {
       Message_Type: 'audio',
       Message_Content: base64String,
       Is_Download: 0,
-      Created_Date: (new Date())?.toString(),
+      Created_Date:(new Date()).toLocaleDateString(),
+      Created_Time:formatAMPM(new Date),
       Is_Seen: 0,
     };
-    insert('Message' + route.params.Friend_ID, 'From_ID,To_ID,Message_Content,Message_Type,Is_Seen,Is_Download', [user.Phone, route.params.Phone, uri, 'audio', 1, 1], '?,?,?,?,?,?');
+
+    insert('Message' + route.params.Friend_ID, 'From_ID,To_ID,Message_Content,Message_Type,Is_Seen,Is_Download, Created_Date, Created_Time', [user.Phone, route.params.Phone, uri, 'audio', 1, 1,msgInfo.Created_Date, msgInfo.Created_Time], '?,?,?,?,?,?,?,?');
     const resp = await postData(ApiUrls.Message._postMessage, msgInfo);
     if (resp.status === 200) {
       msgInfo.Message_Content = resp.data;
       sendMessageToServer(socket, msgInfo);
-      msgInfo.Message_Content = uri;
-      messages.push(msgInfo);
-      dispatch({
-        type: actions.SET_MESSAGES,
-        payload: messages
-      })
-
-
+      select();
     }
   }
 

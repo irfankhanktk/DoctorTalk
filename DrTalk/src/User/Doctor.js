@@ -18,6 +18,8 @@ const DoctorScreen = ({ navigation }) => {
   const [state, dispatch] = useStateValue();
   const { allDoctors, user,allFriends} = state;
   // const [allPatients,setAllPatients]=useState([]);
+  {console.log('allDoctors in doctor',allDoctors)}
+
   const removeFriend=(item)=>{
      
   }

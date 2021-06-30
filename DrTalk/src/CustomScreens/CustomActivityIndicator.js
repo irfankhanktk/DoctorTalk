@@ -13,6 +13,7 @@ const CustomActivityIndicator = ({ visible }) => (
     </View>
   </Modal>
 );
+export default CustomActivityIndicator;
 
 const styles = StyleSheet.create({
   centeredView: {
@@ -36,4 +37,3 @@ const styles = StyleSheet.create({
   },
 });
 
-export { CustomActivityIndicator };

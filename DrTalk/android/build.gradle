@@ -10,6 +10,16 @@ buildscript {
         
          androidXAnnotation = "1.1.0"
          androidXBrowser = "1.0.0"
+
+
+        googlePlayServicesVersion = "+"      // "<Your play services version>" // default: "+"
+        firebaseMessagingVersion = "21.1.0" //"<Your Firebase version>" // default: "21.1.0"
+
+      // Other settings
+    //    compileSdkVersion = <Your compile SDK version> // default: 23
+    //    buildToolsVersion = "<Your build tools version>" // default: "23.0.1"
+    //    targetSdkVersion = <Your target SDK version> // default: 23
+        supportLibVersion = "23.1.1" // default: 23.1.1
     }
     repositories {
         google()

@@ -1,15 +1,16 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import Entypo from 'react-native-vector-icons/Entypo'
+import { getImageUrl } from '../API/ApiUrl';
 const image = require('../assets/images/logo.jpg');
 
-const CustomItem = ({ item, navigation, screen, alterArchive,flag}) => {
+const CustomItem = ({ item, navigation, screen, alterArchive,flag,onPress,longPress}) => {
     return (
-        <TouchableOpacity onLongPress={() => flag ?alterArchive(item):{}} onPress={() => screen ? navigation.navigate(screen, item) : {}} style={{backgroundColor:'#d0d0ff'}}>
+        <TouchableOpacity activeOpacity={1} onLongPress={()=>longPress()} onPress={()=>onPress()} style={{backgroundColor:'#d0d0ff'}}>
             <View style={styles.userInfo}>
             <View style={{ width: '20%', alignItems: 'center', }}>
                 {/* <View style={{position:'absolute',width:10,height:10,borderRadius:50,backgroundColor:'green',zIndex:5,left:50}}/> */}
-                {item.Image ? <Image style={styles.imgStyle} source={{ uri: `data:image/jpeg;base64,${item.Image}` }} />
+                {item.Image ? <Image style={styles.imgStyle} source={{ uri:getImageUrl()+item.Image }} />
                     : <Image style={{ height: 50, width: 50, borderRadius: 50 }} source={image} />
                 }
             </View>

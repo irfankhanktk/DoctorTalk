@@ -253,7 +253,7 @@ const ArchiveChats = ({ navigation }) => {
         keyExtractor={(item, index) => index + ''}
         itemBackgroundColor={'#fff'}
         renderItem={({ item,index }) => (item.IsArchive&&
-          <CustomItem item={item} screen={'ChatActivity'} navigation={navigation} alterArchive={(item)=>UnArchive(item,index)} flag={true} />
+          <CustomItem item={item} screen={'ChatActivity'} onPress={() => navigation.navigate('ChatActivity', item)} longPress={(item)=>UnArchive(item,index)} flag={true} />
         )}
         ItemSeparatorComponent={() => (
           <View style={{ height: 1, }} />

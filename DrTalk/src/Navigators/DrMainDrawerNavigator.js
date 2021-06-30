@@ -20,6 +20,7 @@ import Patient from '../User/Patient';
 import { useStateValue } from '../Store/StateProvider';
 import ArchiveChats from '../User/ArchiveChats';
 import Color from '../assets/Color/Color';
+import ReferTo from '../User/ReferTo';
 
 
 const Drawer = createDrawerNavigator();
@@ -29,13 +30,26 @@ const ChatStack = () => {
     <Stack.Navigator>
       <Stack.Screen name={'DrMainTabNavigator'} component={DrMainTabNavigator} options={{ headerShown: false }} />
       <Stack.Screen name={'ChatActivity'} component={Chat} options={{ headerShown: false }} />
-      <Stack.Screen name={'Profile'} component={Profile} />
+      <Stack.Screen name={'Profile'} component={Profile} options={{
+        headerTintColor:Color.white,
+        headerStyle: {
+          backgroundColor: Color.primary
+        },
+      }} />
       <Stack.Screen name={'ArchiveChats'} component={ArchiveChats} options={{
-       headerStyle: {
-        backgroundColor: Color.primary
-      },  
-      }}/>
+        headerTintColor:Color.white,
+        headerStyle: {
+          backgroundColor: Color.primary
+        },
 
+      }} />
+      <Stack.Screen name={'ReferTo'} component={ReferTo} options={{
+         headerTintColor:Color.white,
+        headerStyle: {
+          backgroundColor: Color.primary
+        },
+
+      }} />
     </Stack.Navigator>
   );
 };
@@ -63,8 +77,8 @@ const DrMainDrawerNavigator = () => {
 export default DrMainDrawerNavigator;
 const Tab = createBottomTabNavigator();
 const DrMainTabNavigator = () => {
-  const [state,dispatch]=useStateValue();
-  const {user}=state;
+  const [state, dispatch] = useStateValue();
+  const { user } = state;
   return (
     <Tab.Navigator tabBarOptions={{ keyboardHidesTabBar: true }}>
       <Tab.Screen name="Chat" component={MyFriends} options={{
@@ -75,12 +89,12 @@ const DrMainTabNavigator = () => {
       }} />
       {user.Role === 'Doctor' &&
         <>
-          <Tab.Screen name="Patients" component={Patient} options={{
+          {/* <Tab.Screen name="Patients" component={Patient} options={{
             tabBarIcon: ({ focused, color, size }) => (
               <Fontisto name='bed-patient' size={size} color={color} />
             )
-          }} />
-          <Tab.Screen name="Doctor" component={AllUser} options={{
+          }} /> */}
+          <Tab.Screen name="Doctors" component={AllUser} options={{
             tabBarIcon: ({ focused, color, size }) => (
               <MaterialCommunityIcons name='doctor' size={size} color={color} />
             )

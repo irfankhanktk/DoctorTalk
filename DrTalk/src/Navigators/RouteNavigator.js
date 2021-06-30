@@ -22,7 +22,7 @@ import Admin from '../Admin/Admin';
 import ApprovedDoctors from '../Admin/ApprovedDr';
 import RejectedDoctors from '../Admin/RejectedDr';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { CustomActivityIndicator } from '../CustomActivityIndicator';
+import CustomActivityIndicator from '../CustomScreens/CustomActivityIndicator';
 
 const Drawer = createDrawerNavigator();
 

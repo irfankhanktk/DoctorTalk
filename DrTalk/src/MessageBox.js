@@ -13,10 +13,14 @@ import { ApiUrls } from './API/ApiUrl';
 import { cos } from 'react-native-reanimated';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
-import { insert } from './API/DManager';
+import { create, create_User_Table, insert } from './API/DManager';
 import Color from './assets/Color/Color';
-import { decryptData, encryptMyData } from './EncrypDecrypt';
+import Camera from './assets/icons/camera.svg'
+import Gallery from './assets/icons/gallery.svg'
 
+import { decryptData, encryptMyData } from './EncrypDecrypt';
+import { openDatabase } from 'react-native-sqlite-storage';
+var db = openDatabase('Khan.db');
 const actionSheetRef = createRef();
 
 const MessageBox = ({ route }) => {
@@ -29,7 +33,13 @@ const MessageBox = ({ route }) => {
         const msgInfo = await getMessageInfo(base64, 'image');
         const resp = await postData(ApiUrls.Message._postMessage, msgInfo);
         if (resp.status == 200) {
-            sendMessage(resp.data, 'image', uri);
+            // sendMessage(resp.data, 'image', uri);
+            msgInfo.Message_Content = resp.data;
+            sendMessageToServer(socket, msgInfo);
+            insert('Message' + route.params.Friend_ID, 'From_ID,To_ID,Message_Content,Message_Type,Is_Seen,Is_Download,Created_Date,Created_Time', [user.Phone, route.params.Phone, uri, msgInfo.Message_Type, 1, 1, msgInfo.Created_Date, msgInfo.Created_Time], '?,?,?,?,?,?,?,?');
+            select();
+        } else {
+            alert("something went wrong");
         }
     }
     const onCamera = async () => {
@@ -61,9 +71,19 @@ const MessageBox = ({ route }) => {
             // navigation.goBack();
         }
     }
+    function formatAMPM(date) {
+        var hours = date.getHours();
+        var minutes = date.getMinutes();
+        var ampm = hours >= 12 ? 'pm' : 'am';
+        hours = hours % 12;
+        hours = hours ? hours : 12; // the hour '0' should be '12'
+        minutes = minutes < 10 ? '0' + minutes : minutes;
+        var strTime = hours + ':' + minutes + ' ' + ampm;
+        return strTime;
+    }
     const getMessageInfo = async (content, messageType) => {
-
-        content = await encryptMyData(content);
+        if (messageType === 'text')
+            content = await encryptMyData(content);
 
         return ({
             Friend_ID: route.params.Friend_ID,
@@ -71,12 +91,46 @@ const MessageBox = ({ route }) => {
             To_ID: route.params.Phone,
             Message_Type: messageType,
             Message_Content: JSON.stringify(content),
-            Created_Date: (new Date()).toString(),
+            Created_Date: (new Date()).toLocaleDateString(),
+            Created_Time: formatAMPM(new Date),
             Is_Download: 0,
             Is_Seen: 0,
         });
     }
-    const sendMessage = async (content, messageType, uri) => {
+    const select = async () => {
+        db.transaction(function (tx) {
+
+            tx.executeSql(
+                'select * from Message' + route.params.Friend_ID,
+                [],
+                (tx, results) => {
+                    const temp = [];
+                    for (let i = 0; i < results.rows.length; ++i) {
+                        temp.push(results.rows.item(i));
+                    }
+
+
+                    let groupData = temp.reduce((acc, item) => {
+                        if (!acc[item.Created_Date])
+                            acc[item.Created_Date] = [];
+                        acc[item.Created_Date].push(item);
+                        return acc;
+                    }, {});
+
+                    dispatch({
+                        type: actions.SET_MESSAGES,
+                        payload: Object.values(groupData)
+                    });
+
+                },
+                (tx, error) => {
+                    console.log('error:', error);
+                    // res = error;
+                }
+            );
+        });
+    }
+    const sendMessage = async (content, messageType) => {
         // if(online){
         //     alert('something went wrong');
         //     return;
@@ -101,21 +155,16 @@ const MessageBox = ({ route }) => {
 
 
         sendMessageToServer(socket, msgInfo);
-        // if (base64) {
-        //     msgInfo.Message_Content = base64;
-        // }
-        if (uri) {
-            content = uri;
-            msgInfo.Message_Content = uri;
-        }
 
-        insert('Message' + route.params.Friend_ID, 'From_ID,To_ID,Message_Content,Message_Type,Is_Seen,Is_Download,Created_Date', [user.Phone, route.params.Phone, content, messageType, 1, 1, msgInfo.Created_Date], '?,?,?,?,?,?,?');
-        msgInfo.Message_Content = content;
-        messages.push(msgInfo);
-        dispatch({
-            type: actions.SET_MESSAGES,
-            payload: messages
-        });
+        // create('Message' + route.params.Friend_ID);
+        // insert('Message' + route.params.Friend_ID, 'From_ID,To_ID,Message_Content,Message_Type,Is_Seen,Is_Download,Created_Date,Created_Time', [user.Phone, route.params.Phone, content, messageType, 1, 1, "", ""], '?,?,?,?,?,?,?,?');
+
+        insert('Message' + route.params.Friend_ID, 'From_ID,To_ID,Message_Content,Message_Type,Is_Seen,Is_Download,Created_Date,Created_Time', [user.Phone, route.params.Phone, content, messageType, 1, 1, msgInfo.Created_Date, msgInfo.Created_Time], '?,?,?,?,?,?,?,?');
+        select();
+        // dispatch({
+        //     type: actions.SET_MESSAGES,
+        //     payload: messages
+        // });
         setMsg('');
     }
 
@@ -132,27 +181,28 @@ const MessageBox = ({ route }) => {
 
     return (
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 10 }}>
-            <View style={{ borderRadius: 20, width: '88%', backgroundColor:'#fffff0', flexDirection: 'row', justifyContent: 'center' }}>
+            <View style={{ borderRadius: 20, width: '88%', backgroundColor: '#fffff0', flexDirection: 'row', justifyContent: 'center' }}>
                 <TextInput onChangeText={text => setMsg(text)} value={msg} style={styles.InputTxt} width={'80%'} height={height * txtInputHeight} placeholder='type here' onContentSizeChange={() => updateSize()} multiline />
                 <TouchableOpacity onPress={() => {
                     actionSheetRef.current?.setModalVisible();
-                }} style={{ alignSelf: 'flex-end', alignItems: 'center', width: '20%', height: 30 }}>
+                }} style={{ alignSelf: 'flex-end', alignItems: 'center', width: '20%', height: 30, bottom: 5 }}>
                     <Entypo name='camera' size={25} />
                 </TouchableOpacity>
             </View>
-            {msg.length > 0 ? <TouchableOpacity onPress={()=>sendMessage(msg,'text')} style={{position:'absolute',right:10,bottom:6}}>
-                <MaterialIcon color={'blue'} name={'send'} size={25}/>
+            {msg.length > 0 ? <TouchableOpacity onPress={() => sendMessage(msg, 'text')} style={{ position: 'absolute', right: 10, bottom: 6 }}>
+                <MaterialIcon color={'blue'} name={'send'} size={25} />
             </TouchableOpacity> : <Recorder route={route} />}
             <ActionSheet ref={actionSheetRef}>
-                <View style={{ height: 200, padding: 20 }}>
+                <View style={{ height: 120, padding: 20 }}>
                     <Text style={{ fontSize: 20, fontWeight: 'bold' }}>Select Photo</Text>
-                    <View style={{ height: 100, alignItems: 'center', flexDirection: 'row' }}>
-                        <TouchableOpacity onPress={() => onCamera()}>
-                            <Image source={require('./assets/images/camera.jpg')} style={styles.imgStyle} />
-                        </TouchableOpacity>
+                    <View style={{ height: 100, width:'30%',alignItems: 'center', flexDirection: 'row',bottom:20,justifyContent:'space-between' }}>
                         <TouchableOpacity onPress={() => onGallery()}>
-                            <Image source={require('./assets/images/gallery.jpg')} style={styles.imgStyle} />
+                        <Gallery height={40} width={40} />
                         </TouchableOpacity>
+                        <TouchableOpacity onPress={() => onCamera()}>
+                            <Camera height={45} width={43} />
+                        </TouchableOpacity>
+
                     </View>
                 </View>
             </ActionSheet>

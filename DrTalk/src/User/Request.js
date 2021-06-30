@@ -21,7 +21,7 @@ const RequestScreen = ({ navigation }) => {
   const { allRequests, token, user, allFriends } = state;
   const getRequestsData = async () => {
     const res = await getData(`${ApiUrls.Friend._getFriendRequests}?Phone=${user.Phone}`);
-    console.log('');
+    console.log('res of req :',res.status);
     if (res.status === 200) {
       if (res?.data.length > 0) {
         dispatch({
@@ -73,6 +73,7 @@ const RequestScreen = ({ navigation }) => {
   }
 
   const select = async (tableName) => {
+    console.log("select * from " + tableName +" where Friend_Type='Requested'");
     db.transaction(function (tx) {
       tx.executeSql(
         "select * from " + tableName +" where Friend_Type='Requested'",
@@ -120,7 +121,7 @@ const RequestScreen = ({ navigation }) => {
         data={allRequests}
         keyExtractor={(item, index) => index + 'key'}
         renderItem={({ item }) => (
-          <CustomItem item={item} navigation={navigation} />
+          <CustomItem item={item} navigation={navigation} longPress={()=>{}} onPress={()=>{}} />
         )}
         onEndReachedThreshold={0.5}
         maxSwipeDistance={wp('50%')}

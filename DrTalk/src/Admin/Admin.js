@@ -6,13 +6,13 @@ import { useState } from 'react/cjs/react.development';
 import { getData } from '../API/ApiCalls';
 import { ApiUrls } from '../API/ApiUrl';
 import Color from '../assets/Color/Color';
-import { CustomActivityIndicator } from '../CustomActivityIndicator';
 import CustomHeader from '../CustomHeader';
 import CustomItem from '../CustomScreens/CustomItem';
 import { useStateValue } from '../Store/StateProvider';
 // import {createDrawerNavigator} from '@react-navigation/drawer';
 const image = require('../assets/images/logo.jpg');
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
+import CustomActivityIndicator from '../CustomScreens/CustomActivityIndicator';
 
 
 const Admin = ({ navigation }) => {

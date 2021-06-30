@@ -13,6 +13,7 @@ import { actions } from '../Store/Reducer';
 import { CommonActions } from '@react-navigation/native';
 import { color } from 'react-native-reanimated';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
+import { getImageUrl } from '../API/ApiUrl';
 
 const image = require('../assets/images/logo.jpg');
 export function CustomDrawerContent(props) {
@@ -42,7 +43,7 @@ export function CustomDrawerContent(props) {
       >
         <View style={styles.profileStyle}>
           {user && user.Image ?
-            <Image source={{ uri: `data:image/jpeg;base64,${user.Image}` }} style={styles.imgStyle} />
+            <Image source={{uri:getImageUrl()+user.Image}} style={styles.imgStyle} />
             : <Image source={image} style={styles.imgStyle} />
           }
           {/* {user && user.UImage ? <Image source={image} style={styles.imgStyle} />

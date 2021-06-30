@@ -7,7 +7,6 @@ import Modal from 'react-native-modal'
 import { Sessions as s } from './Sessions'
 import { useStateValue } from '../Store/StateProvider';
 import { actions } from '../Store/Reducer';
-import { CustomActivityIndicator } from '../CustomActivityIndicator';
 import { ApiUrls } from '../API/ApiUrl';
 import { getData, postData } from '../API/ApiCalls'
 import Color from '../assets/Color/Color';
@@ -19,6 +18,7 @@ import {
 } from 'react-native-responsive-screen';
 import OptModal from '../CustomScreens/OtpModal';
 import {decryptData, encryptMyData} from '../EncrypDecrypt';
+import CustomActivityIndicator from '../CustomScreens/CustomActivityIndicator';
 // E:\React_Native\DrTalk\src\images\logo.jpg
 const LogIn = ({ navigation }) => {
     const [state, dispatch] = useStateValue();

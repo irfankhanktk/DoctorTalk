@@ -17,6 +17,7 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome'
 
 const audioRecorderPlayer = new AudioRecorderPlayer();
 const PlayAudio = ({item}) => {
+
     const [recordSecs, setRecordSecs] = useState(0);
     const [recordTime, setRecordTime] = useState(0);
     const [currentDurationSec, setCurrentDurationSec] = useState(0);
@@ -139,6 +140,7 @@ const PlayAudio = ({item}) => {
     //     setVoiceList(newData);
     // }
     const onStartPlay = async (item) => {
+
         if (Platform.OS === 'android') {
             try {
                 const granted = await PermissionsAndroid.request(
@@ -184,10 +186,9 @@ const PlayAudio = ({item}) => {
         // handlePlayPause(item);
 
         setIsPlay(!isPlay);
-        console.log('onStartPlay',item.Message_Content);
         const path = Platform.select({
             ios: 'hello.m4a',
-             android:item.Message_Content, // should give extra dir name in android. Won't grant permission to the first level of dir.
+             android:item, // should give extra dir name in android. Won't grant permission to the first level of dir.
            
             // android: `data:audio/mp3;base64,${item}`, // should give extra dir name in android. Won't grant permission to the first level of dir.
         });
@@ -237,7 +238,7 @@ const PlayAudio = ({item}) => {
 
 
     return (
-    <View style={{width:'40%',justifyContent: 'center',alignItems: 'center', height: 50, flexDirection: 'row', justifyContent: 'space-around', backgroundColor: 'gray'}}>
+    <View style={{borderRadius:10,width:'40%',justifyContent: 'center',alignItems: 'center', height: 30, flexDirection: 'row', justifyContent: 'space-around', backgroundColor: 'gray'}}>
         {isPlay?
             <TouchableOpacity onPress={() => onStartPlay(item)}>
                 <FontAwesome name='play' size={15} />

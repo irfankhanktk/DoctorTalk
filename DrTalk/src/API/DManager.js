@@ -1,17 +1,19 @@
 import { openDatabase } from 'react-native-sqlite-storage';
 var db = openDatabase('Khan.db');
 export const insert = (tableName, columns, data, questions) => {
- 
+ console.log( 'INSERT INTO ' + tableName + ' (' + columns + ') VALUES (' + questions + ')');
+ console.log('data: ',data);
     db.transaction(function (tx) {
         tx.executeSql(
-            'INSERT INTO ' + tableName + '(' + columns + ') VALUES (' + questions + ')',
+            'INSERT INTO ' + tableName + ' (' + columns + ') VALUES (' + questions + ')',
             data,
             (tx, results) => {
                 if (results.rowsAffected > 0) {
-                } else console.log('insertion Failed');
+                console.log('inserted Successfully in '+tableName);
+                }
             },
             (tx, results) => {
-                console.log('Results', results);
+                console.log('insertion failed in '+tableName);
             }
         );
       
@@ -47,8 +49,9 @@ export const create = async (tableName) => {
         //     (tx, results) => alert('successfully droped ' + tableName),
         //     (tx, results) => alert('failed to drop table ' + tableName)
         // );
+      
         tx.executeSql(
-            'CREATE TABLE IF NOT EXISTS ' + tableName + '(Message_ID INTEGER PRIMARY KEY AUTOINCREMENT, From_ID VARCHAR(20), To_ID VARCHAR(20), Message_Content Text,Message_Type Text,Is_Seen INTEGER,Is_Download INTEGER,Created_Date Text)',
+            'CREATE TABLE IF NOT EXISTS ' + tableName + '(Message_ID INTEGER PRIMARY KEY AUTOINCREMENT, From_ID VARCHAR(20), To_ID VARCHAR(20), Message_Content Text,Message_Type Text,Is_Seen INTEGER,Is_Download INTEGER,Created_Date Text, Created_Time Text)',
             [],
             (tx, results) => { console.log('successfully created ' + tableName) },
             (tx, results) => { console.log('failed to create table ' + tableName) }
@@ -88,15 +91,16 @@ export const create_User_Table = async (Phone) => {
     });
 
 }
-export const update = async (tableName, columns, values) => {
-
+export const update = async (tableName, columns, where,values,) => {
+console.log( 'UPDATE ' + tableName + ' SET ' + columns +' '+ where,
+values);
     db.transaction((tx) => {
         // tx.executeSql('DROP TABLE IF EXISTS ' + tableName, [],
         //     (tx, results) => alert('successfully droped ' + tableName),
         //     (tx, results) => alert('failed to drop table ' + tableName)
         // );
         tx.executeSql(
-            'UPDATE ' + tableName + ' SET ' + columns + ' where Message_ID=?',
+            'UPDATE ' + tableName + ' SET ' + columns +' '+ where,
             values,
             (tx, results) => { console.log('successfully updated ' + tableName) },
             (tx, results) => { console.log('failed to update ' + tableName) }
@@ -122,9 +126,14 @@ export const updateStatus = async (phone, status) => {
 }
 export const create_CCD_Table = async () => {
     // dropTable('CCD');
+     
     db.transaction((tx) => {
+        //  tx.executeSql('DROP TABLE IF EXISTS CCD', [],
+        //     (tx, results) => console.log('successfully droped '),
+        //     (tx, results) => alert('failed to drop table ')
+        // );
         tx.executeSql(
-            'CREATE TABLE IF NOT EXISTS CCD (CCD_ID INTEGER PRIMARY KEY AUTOINCREMENT, Friend_ID VARCHAR(20),CCD_Title,CCD_Text TEXT)',
+            'CREATE TABLE IF NOT EXISTS CCD (CCD_ID INTEGER PRIMARY KEY , Patient_ID VARCHAR(20),Visited_Date, CCD_Title TEXT, CCD_Table TEXT)',
             [],
             (tx, results) => { console.log('successfully created CCD') },
             (tx, results) => { console.log('failed to create table CCD') }
@@ -146,9 +155,19 @@ export const deleteRow=(tableName,where,values)=>{
 export const dropTable = async (tableName) => {
 
     await db.transaction((tx) => {
-        tx.executeSql('DROP TABLE IF EXISTS ' + tableName, [],
+        tx.executeSql('DELETE FROM ' + tableName, [],
             (tx, results) => alert('successfully droped ' + tableName),
             (tx, results) => alert('failed to drop table ' + tableName)
+        );
+    });
+
+}
+export const deleteCCDRecords = async (tableName) => {
+
+    await db.transaction((tx) => {
+        tx.executeSql('DELETE FROM CCD', [],
+            (tx, results) => alert('successfully droped '),
+            (tx, results) => alert('failed to drop table ')
         );
     });
 

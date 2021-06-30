@@ -5,7 +5,6 @@ import  SwipeableFlatList from 'react-native-swipeable-list';
 import { useState } from 'react/cjs/react.development';
 import { getData } from '../API/ApiCalls';
 import { ApiUrls } from '../API/ApiUrl';
-import { CustomActivityIndicator } from '../CustomActivityIndicator';
 import CustomHeader from '../CustomHeader';
 import CustomItem from '../CustomScreens/CustomItem';
 import { useStateValue } from '../Store/StateProvider';

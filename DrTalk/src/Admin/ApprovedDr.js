@@ -6,7 +6,6 @@ import { useState } from 'react/cjs/react.development';
 import { getData } from '../API/ApiCalls';
 import { ApiUrls } from '../API/ApiUrl';
 import Color from '../assets/Color/Color';
-import { CustomActivityIndicator } from '../CustomActivityIndicator';
 import CustomHeader from '../CustomHeader';
 import CustomItem from '../CustomScreens/CustomItem';
 import { useStateValue } from '../Store/StateProvider';
