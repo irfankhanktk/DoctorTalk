@@ -1,0 +1,102 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Schema Namespace="DoctorPatientModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+  <EntityType Name="BlockedUser">
+    <Key>
+      <PropertyRef Name="Block_id" />
+    </Key>
+    <Property Name="Block_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="BlockByPhone" Type="varchar" MaxLength="30" />
+    <Property Name="BlockUserPhone" Type="varchar" MaxLength="30" />
+  </EntityType>
+  <EntityType Name="CCD">
+    <Key>
+      <PropertyRef Name="CCD_ID" />
+    </Key>
+    <Property Name="CCD_ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Patient_ID" Type="nvarchar" MaxLength="20" />
+    <Property Name="Doctor_ID" Type="nvarchar" MaxLength="20" />
+    <Property Name="CCD_Title" Type="nvarchar(max)" />
+    <Property Name="CCD_Table" Type="nvarchar(max)" />
+    <Property Name="Visited_Date" Type="date" />
+  </EntityType>
+  <EntityType Name="Friend">
+    <Key>
+      <PropertyRef Name="Friend_ID" />
+    </Key>
+    <Property Name="Friend_ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="To_ID" Type="varchar" MaxLength="30" />
+    <Property Name="From_ID" Type="varchar" MaxLength="30" />
+    <Property Name="IsBlock_To" Type="bit" />
+    <Property Name="IsBlock_From" Type="bit" />
+    <Property Name="Friend_Type" Type="varchar" MaxLength="30" />
+    <Property Name="IsArchive_To" Type="bit" />
+    <Property Name="IsArchive_From" Type="bit" />
+  </EntityType>
+  <EntityType Name="Group">
+    <Key>
+      <PropertyRef Name="G_ID" />
+    </Key>
+    <Property Name="G_ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="G_Name" Type="nvarchar" MaxLength="50" />
+    <Property Name="G_MemberIDs" Type="nvarchar(max)" />
+    <Property Name="G_Created_By" Type="nvarchar" MaxLength="50" />
+    <Property Name="G_Created_Date" Type="date" />
+    <Property Name="G_Image" Type="nvarchar(max)" />
+  </EntityType>
+  <EntityType Name="Invitation">
+    <Key>
+      <PropertyRef Name="Invitaion_ID" />
+    </Key>
+    <Property Name="Invitaion_ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="From_ID" Type="varchar" MaxLength="30" />
+    <Property Name="To_ID" Type="varchar" MaxLength="30" />
+    <Property Name="Invitation_Code" Type="int" />
+    <Property Name="Invitation_Type" Type="varchar" MaxLength="20" />
+  </EntityType>
+  <EntityType Name="Message">
+    <Key>
+      <PropertyRef Name="Message_ID" />
+    </Key>
+    <Property Name="Message_ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="From_ID" Type="nvarchar" MaxLength="50" Nullable="false" />
+    <Property Name="To_ID" Type="nvarchar" MaxLength="50" Nullable="false" />
+    <Property Name="Message_Content" Type="nvarchar(max)" />
+    <Property Name="Is_Seen" Type="bit" />
+    <Property Name="Message_Type" Type="nvarchar" MaxLength="50" Nullable="false" />
+    <Property Name="Created_Date" Type="datetime" />
+    <Property Name="Created_Time" Type="nvarchar" MaxLength="50" />
+    <Property Name="Is_Group" Type="bit" />
+  </EntityType>
+  <EntityType Name="ReferPatient">
+    <Key>
+      <PropertyRef Name="Ref_ID" />
+    </Key>
+    <Property Name="Patient_ID" Type="nvarchar" MaxLength="50" Nullable="false" />
+    <Property Name="ReferFrom_ID" Type="nvarchar" MaxLength="50" Nullable="false" />
+    <Property Name="ReferTo_ID" Type="nvarchar" MaxLength="50" Nullable="false" />
+    <Property Name="AllowedFields" Type="nvarchar(max)" />
+    <Property Name="Ref_ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+  </EntityType>
+  <EntityType Name="User">
+    <Key>
+      <PropertyRef Name="Phone" />
+    </Key>
+    <Property Name="Phone" Type="nvarchar" MaxLength="11" Nullable="false" />
+    <Property Name="Name" Type="nvarchar" MaxLength="50" />
+    <Property Name="Image" Type="nvarchar(max)" />
+    <Property Name="Role" Type="nvarchar" MaxLength="50" Nullable="false" />
+    <Property Name="IsApproved" Type="bit" />
+    <Property Name="IsRejected" Type="bit" />
+    <Property Name="Status" Type="nchar" MaxLength="30" />
+  </EntityType>
+  <EntityContainer Name="DoctorPatientModelStoreContainer">
+    <EntitySet Name="BlockedUser" EntityType="Self.BlockedUser" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="CCD" EntityType="Self.CCD" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="Friend" EntityType="Self.Friend" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="Group" EntityType="Self.Group" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="Invitation" EntityType="Self.Invitation" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="Message" EntityType="Self.Message" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="ReferPatient" EntityType="Self.ReferPatient" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="User" EntityType="Self.User" Schema="dbo" store:Type="Tables" />
+  </EntityContainer>
+</Schema>
